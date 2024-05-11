@@ -73,7 +73,7 @@ if __name__ == '__main__':
     params.threads = 0
     params.rgb_range = 1
     params.data_test = 'PairLIE-testing-dataset/MEF'
-    params.model = 'weights/PairLIE.pth'
+    params.model = 'weights/train_20240511_163903/epoch_50.pth'
     params.output_folder = 'results/MEF/'
 
     print('===> Loading datasets')

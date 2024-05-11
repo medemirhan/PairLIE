@@ -39,7 +39,7 @@ class DatasetFromFolder(data.Dataset):
         _, file1 = os.path.split(data_filenames[index1-1])
         _, file2 = os.path.split(data_filenames[index2-1])
 
-        seed = np.random.randint(123456789) # make a seed with numpy generator 
+        seed = np.random.randint(42) # make a seed with numpy generator 
         if self.transform:
             random.seed(seed) # apply this seed to img tranfsorms
             torch.manual_seed(seed) # needed for torchvision 0.7
@@ -50,7 +50,7 @@ class DatasetFromFolder(data.Dataset):
         return im1, im2, file1, file2
 
     def __len__(self):
-        return 324 # for custom datasets, please check the dataset size and modify this number
+        return len(os.listdir(self.data_dir)) # for custom datasets, please check the dataset size and modify this number
 
 
 class DatasetFromFolderEval(data.Dataset):
