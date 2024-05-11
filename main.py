@@ -14,7 +14,7 @@ from utils import *
 from datetime import datetime
 import json
 
-REPORT_INTERVAL = 50
+REPORT_INTERVAL = 3
 
 def parse_args():
     # Training settings
