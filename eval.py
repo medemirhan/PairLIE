@@ -4,7 +4,7 @@ import time
 import argparse
 #from thop import profile
 from net.net import net
-from data import get_eval_set
+from data import get_eval_set, get_eval_set_hsi
 from torchvision import transforms
 from torch.utils.data import DataLoader
 from utils import *
@@ -40,27 +40,21 @@ def eval(params, model, testing_data_loader):
             # flops, params = profile(model, (input,))
             # print('flops: ', flops, 'params: ', params)
 
-        if not os.path.exists(params.output_folder):
-            os.makedirs(params.output_folder, exist_ok=True)
-            os.makedirs(params.output_folder + 'L/', exist_ok=True)
-            os.makedirs(params.output_folder + 'R/', exist_ok=True)
-            os.makedirs(params.output_folder + 'I/', exist_ok=True)
-            os.makedirs(params.output_folder + 'D/', exist_ok=True)
+        os.makedirs(params.output_folder, exist_ok=True)
+        os.makedirs(params.output_folder + 'L/', exist_ok=True)
+        os.makedirs(params.output_folder + 'R/', exist_ok=True)
+        os.makedirs(params.output_folder + 'I/', exist_ok=True)
+        os.makedirs(params.output_folder + 'D/', exist_ok=True)
 
-        L = L.cpu()
-        R = R.cpu()
-        I = I.cpu()
-        D = D.cpu()        
+        L_dic = {'data': torch.permute(L.squeeze(0), (1, 2, 0)).cpu().numpy()}
+        R_dic = {'data': torch.permute(R.squeeze(0), (1, 2, 0)).cpu().numpy()}
+        I_dic = {'data': torch.permute(I.squeeze(0), (1, 2, 0)).cpu().numpy()}
+        D_dic = {'data': torch.permute(D.squeeze(0), (1, 2, 0)).cpu().numpy()}
 
-        L_img = transforms.ToPILImage()(L.squeeze(0))
-        R_img = transforms.ToPILImage()(R.squeeze(0))
-        I_img = transforms.ToPILImage()(I.squeeze(0))                
-        D_img = transforms.ToPILImage()(D.squeeze(0))  
-
-        L_img.save(params.output_folder + '/L/' + name[0])
-        R_img.save(params.output_folder + '/R/' + name[0])
-        I_img.save(params.output_folder + '/I/' + name[0])  
-        D_img.save(params.output_folder + '/D/' + name[0])                       
+        sio.savemat(params.output_folder + '/L/' + name[0], L_dic)
+        sio.savemat(params.output_folder + '/R/' + name[0], R_dic)
+        sio.savemat(params.output_folder + '/I/' + name[0], I_dic)
+        sio.savemat(params.output_folder + '/D/' + name[0], D_dic)
 
     torch.set_grad_enabled(True)
 
@@ -72,12 +66,12 @@ if __name__ == '__main__':
     params.gpu_mode = True
     params.threads = 0
     params.rgb_range = 1
-    params.data_test = 'PairLIE-testing-dataset/MEF'
-    params.model = 'weights/train_20240511_163903/epoch_50.pth'
-    params.output_folder = 'results/MEF/'
+    params.data_test = 'test_ll'
+    params.model = 'weights/train_20240511_235131/epoch_50.pth'
+    params.output_folder = 'results/hsi/'
 
     print('===> Loading datasets')
-    test_set = get_eval_set(params.data_test)
+    test_set = get_eval_set_hsi(params.data_test)
     testing_data_loader = DataLoader(dataset=test_set, num_workers=params.threads, batch_size=params.testBatchSize, shuffle=False)
 
     print('===> Building model')

@@ -77,9 +77,9 @@ class N_net(nn.Module):
 class net(nn.Module):
     def __init__(self):
         super(net, self).__init__()        
-        self.L_net = L_net(num=128)
-        self.R_net = R_net(num=128)
-        self.N_net = N_net(num=128)
+        self.L_net = L_net(num=256)
+        self.R_net = R_net(num=256)
+        self.N_net = N_net(num=256)
 
     def forward(self, input):
         x = self.N_net(input)

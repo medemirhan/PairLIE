@@ -65,7 +65,8 @@ class DatasetFromFolderEval(data.Dataset):
         self.transform = transform
 
     def __getitem__(self, index):
-        input = load_img(self.data_filenames[index])
+        #input = load_img(self.data_filenames[index])
+        input = utils.load_hsi_as_tensor(self.data_filenames[index])
         _, file = os.path.split(self.data_filenames[index])
 
         if self.transform:

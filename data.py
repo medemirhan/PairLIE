@@ -18,6 +18,10 @@ def transform3():
         RandomCrop((128, 128)),
     ])
 
+def transform4():
+    return Compose([
+    ])
+
 def get_training_set(data_dir):
     return DatasetFromFolder(data_dir, transform=transform1())
 
@@ -26,3 +30,6 @@ def get_eval_set(data_dir):
 
 def get_training_set_hsi(data_dir):
     return DatasetFromFolder(data_dir, transform=transform3())
+
+def get_eval_set_hsi(data_dir):
+    return DatasetFromFolderEval(data_dir, transform=transform4())
