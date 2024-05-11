@@ -9,10 +9,11 @@ from os.path import join
 from PIL import Image, ImageOps
 from random import randrange
 import torchvision.transforms as transforms
+import utils
 
 
 def is_image_file(filename):
-    return any(filename.endswith(extension) for extension in [".png", ".jpg", ".bmp", ".JPG", ".jpeg"])
+    return any(filename.endswith(extension) for extension in [".png", ".jpg", ".bmp", ".JPG", ".jpeg", ".mat"])
 
 def load_img(filepath):
     img = Image.open(filepath).convert('RGB')
@@ -33,8 +34,10 @@ class DatasetFromFolder(data.Dataset):
         while abs(index1 - index2) == 0:
             index2 = random.randint(1,num)
 
-        im1 = load_img(data_filenames[index1-1])
-        im2 = load_img(data_filenames[index2-1])
+        #im1 = load_img(data_filenames[index1 - 1])
+        #im2 = load_img(data_filenames[index2 - 1])
+        im1 = utils.load_hsi_as_tensor(data_filenames[index1 - 1])
+        im2 = utils.load_hsi_as_tensor(data_filenames[index2 - 1])
 
         _, file1 = os.path.split(data_filenames[index1-1])
         _, file2 = os.path.split(data_filenames[index2-1])

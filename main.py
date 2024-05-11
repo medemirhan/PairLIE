@@ -9,7 +9,7 @@ import torch.backends.cudnn as cudnn
 import torch.optim.lr_scheduler as lrs
 from torch.utils.data import DataLoader
 from net.net import net
-from data import get_training_set, get_eval_set
+from data import get_training_set, get_eval_set, get_training_set_hsi
 from utils import *
 from datetime import datetime
 import json
@@ -164,8 +164,8 @@ if __name__ == '__main__':
     params = parse_args()
 
     params.batchSize = 1
-    params.nEpochs = 50
-    params.snapshots = 5
+    params.nEpochs = 300
+    params.snapshots = 10
     params.start_iter = 1
     params.lr = 1e-4
     params.gpu_mode = True
@@ -173,7 +173,8 @@ if __name__ == '__main__':
     params.decay = 100
     params.gamma = 0.5
     params.seed = 42
-    params.data_train = 'PairLIE-training-dataset'
+    #params.data_train = 'PairLIE-training-dataset'
+    params.data_train = 'train_ll_histeq'
     params.rgb_range = 1
     params.save_folder = 'weights'
     params.output_folder = 'results'
@@ -185,7 +186,8 @@ if __name__ == '__main__':
         raise Exception("No GPU found, please run without --cuda")
 
     print('===> Loading datasets')
-    train_set = get_training_set(params.data_train)
+    #train_set = get_training_set(params.data_train)
+    train_set = get_training_set_hsi(params.data_train)
     training_data_loader = DataLoader(dataset=train_set, num_workers=params.threads, batch_size=params.batchSize, shuffle=True)
 
     train(params, training_data_loader)

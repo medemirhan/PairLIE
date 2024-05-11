@@ -7,7 +7,7 @@ class L_net(nn.Module):
         super(L_net, self).__init__()
         self.L_net = nn.Sequential(
             nn.ReflectionPad2d(1),
-            nn.Conv2d(3, num, 3, 1, 0),
+            nn.Conv2d(64, num, 3, 1, 0),
             nn.ReLU(),               
             nn.ReflectionPad2d(1),
             nn.Conv2d(num, num, 3, 1, 0),
@@ -32,7 +32,7 @@ class R_net(nn.Module):
 
         self.R_net = nn.Sequential(
             nn.ReflectionPad2d(1),
-            nn.Conv2d(3, num, 3, 1, 0),
+            nn.Conv2d(64, num, 3, 1, 0),
             nn.ReLU(), 
             nn.ReflectionPad2d(1),
             nn.Conv2d(num, num, 3, 1, 0),
@@ -44,18 +44,18 @@ class R_net(nn.Module):
             nn.Conv2d(num, num, 3, 1, 0),            
             nn.ReLU(),   
             nn.ReflectionPad2d(1),
-            nn.Conv2d(num, 3, 3, 1, 0),
+            nn.Conv2d(num, 64, 3, 1, 0),
         )
 
     def forward(self, input):
-        return torch.sigmoid(self.R_net(input))
+        return torch.relu(self.R_net(input))
 
 class N_net(nn.Module):
     def __init__(self, num=64):
         super(N_net, self).__init__()
         self.N_net = nn.Sequential(
             nn.ReflectionPad2d(1),
-            nn.Conv2d(3, num, 3, 1, 0),
+            nn.Conv2d(64, num, 3, 1, 0),
             nn.ReLU(), 
             nn.ReflectionPad2d(1),
             nn.Conv2d(num, num, 3, 1, 0),
@@ -67,19 +67,19 @@ class N_net(nn.Module):
             nn.Conv2d(num, num, 3, 1, 0),            
             nn.ReLU(),   
             nn.ReflectionPad2d(1),
-            nn.Conv2d(num, 3, 3, 1, 0),
+            nn.Conv2d(num, 64, 3, 1, 0),
         )
 
     def forward(self, input):
-        return torch.sigmoid(self.N_net(input))
+        return torch.relu(self.N_net(input))
 
 
 class net(nn.Module):
     def __init__(self):
         super(net, self).__init__()        
-        self.L_net = L_net(num=64)
-        self.R_net = R_net(num=64)
-        self.N_net = N_net(num=64)        
+        self.L_net = L_net(num=128)
+        self.R_net = R_net(num=128)
+        self.N_net = N_net(num=128)
 
     def forward(self, input):
         x = self.N_net(input)

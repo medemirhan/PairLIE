@@ -140,3 +140,14 @@ def plot_per_epoch(save_dir, title, measurements, y_label):
     plot_fname = os.path.join(save_dir, fname)
     plt.savefig(plot_fname, dpi=200)
     plt.close()
+
+def load_hsi_as_tensor(path, matContentHeader="data"):
+    mat = sio.loadmat(path)
+    mat = mat[matContentHeader]
+
+    assert isinstance(mat, np.ndarray) and mat.dtype != np.uint8
+
+    mat = torch.from_numpy(mat).to(dtype=torch.float32)
+    mat = torch.permute(mat, (2, 0, 1))
+
+    return mat
