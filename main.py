@@ -1,5 +1,5 @@
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+#os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 import torch
 import argparse
 import random
@@ -11,36 +11,36 @@ from torch.utils.data import DataLoader
 from net.net import net
 from data import get_training_set, get_eval_set
 from utils import *
+from datetime import datetime
 
-# Training settings
-parser = argparse.ArgumentParser(description='PairLIE')
-parser.add_argument('--batchSize', type=int, default=1, help='training batch size')
-parser.add_argument('--nEpochs', type=int, default=400, help='number of epochs to train for')
-parser.add_argument('--snapshots', type=int, default=20, help='Snapshots')
-parser.add_argument('--start_iter', type=int, default=1, help='Starting Epoch')
-parser.add_argument('--lr', type=float, default=1e-4, help='Learning Rate. Default=1e-4')
-parser.add_argument('--gpu_mode', type=bool, default=True)
-parser.add_argument('--threads', type=int, default=0, help='number of threads for data loader to use')
-parser.add_argument('--decay', type=int, default='100', help='learning rate decay type')
-parser.add_argument('--gamma', type=float, default=0.5, help='learning rate decay factor for step decay')
-parser.add_argument('--seed', type=int, default=123456789, help='random seed to use. Default=123')
-parser.add_argument('--data_train', type=str, default='../dataset/PairLIE-training-dataset/')
-parser.add_argument('--rgb_range', type=int, default=1, help='maximum value of RGB')
-parser.add_argument('--save_folder', default='weights/', help='Location to save checkpoint models')
-parser.add_argument('--output_folder', default='results/', help='Location to save checkpoint models')
-opt = parser.parse_args()
+def parse_args():
+    # Training settings
+    parser = argparse.ArgumentParser(description='PairLIE')
+    parser.add_argument('--batchSize', type=int, default=1, help='training batch size')
+    parser.add_argument('--nEpochs', type=int, default=400, help='number of epochs to train for')
+    parser.add_argument('--snapshots', type=int, default=20, help='Snapshots')
+    parser.add_argument('--start_iter', type=int, default=1, help='Starting Epoch')
+    parser.add_argument('--lr', type=float, default=1e-4, help='Learning Rate. Default=1e-4')
+    parser.add_argument('--gpu_mode', type=bool, default=True)
+    parser.add_argument('--threads', type=int, default=0, help='number of threads for data loader to use')
+    parser.add_argument('--decay', type=int, default='100', help='learning rate decay type')
+    parser.add_argument('--gamma', type=float, default=0.5, help='learning rate decay factor for step decay')
+    parser.add_argument('--seed', type=int, default=123456789, help='random seed to use. Default=123')
+    parser.add_argument('--data_train', type=str, default='../dataset/PairLIE-training-dataset/')
+    parser.add_argument('--rgb_range', type=int, default=1, help='maximum value of RGB')
+    parser.add_argument('--save_folder', default='weights/', help='Location to save checkpoint models')
+    parser.add_argument('--output_folder', default='results/', help='Location to save checkpoint models')
+    return parser.parse_args()
 
-def seed_torch(seed=opt.seed):
+def seed_torch(seed):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
-seed_torch()
-cudnn.benchmark = True
 
-def train():
+def train_on_epoch(epoch, model, training_data_loader, optimizer):
     model.train()
     loss_print = 0
     for iteration, batch in enumerate(training_data_loader, 1):
@@ -64,35 +64,62 @@ def train():
                 iteration, len(training_data_loader), loss_print, optimizer.param_groups[0]['lr']))
             loss_print = 0
 
-def checkpoint(epoch):
-    model_out_path = opt.save_folder+"epoch_{}.pth".format(epoch)
-    torch.save(model.state_dict(), model_out_path)
+def checkpoint(epoch, model_state_dict, save_folder, timestamp):
+    dir = os.path.normpath(os.path.join(save_folder, 'train_' + timestamp))
+    os.makedirs(dir, exist_ok=True)
+    model_out_path = os.path.join(dir, "epoch_{}.pth".format(epoch))
+    torch.save(model_state_dict, model_out_path)
     print("Checkpoint saved to {}".format(model_out_path))
 
-cuda = opt.gpu_mode
-if cuda and not torch.cuda.is_available():
-    raise Exception("No GPU found, please run without --cuda")
+def train(params, training_data_loader):
+    print('===> Building model ')
+    model = net().cuda()
+    optimizer = optim.Adam(model.parameters(), lr=params.lr, betas=(0.9, 0.999), eps=1e-8)
 
-print('===> Loading datasets')
-train_set = get_training_set(opt.data_train)
-training_data_loader = DataLoader(dataset=train_set, num_workers=opt.threads, batch_size=opt.batchSize, shuffle=True)
+    model_timestamp = f'{datetime.now():{""}%Y%m%d_%H%M%S}'
 
-print('===> Building model ')
-model= net().cuda()
-optimizer = optim.Adam(model.parameters(), lr=opt.lr, betas=(0.9, 0.999), eps=1e-8)
+    milestones = []
+    for i in range(1, params.nEpochs+1):
+        if i % params.decay == 0:
+            milestones.append(i)
 
-milestones = []
-for i in range(1, opt.nEpochs+1):
-    if i % opt.decay == 0:
-        milestones.append(i)
+    scheduler = lrs.MultiStepLR(optimizer, milestones, params.gamma)
 
-scheduler = lrs.MultiStepLR(optimizer, milestones, opt.gamma)
+    score_best = 0
+    # shutil.rmtree(params.save_folder)
+    # os.mkdir(params.save_folder)
+    for epoch in range(params.start_iter, params.nEpochs + 1):
+        train_on_epoch(epoch, model, training_data_loader, optimizer)
+        scheduler.step()
+        if epoch % params.snapshots == 0:
+            checkpoint(epoch, model.state_dict(), params.save_folder, model_timestamp)          
 
-score_best = 0
-# shutil.rmtree(opt.save_folder)
-# os.mkdir(opt.save_folder)
-for epoch in range(opt.start_iter, opt.nEpochs + 1):
-    train()
-    scheduler.step()
-    if epoch % opt.snapshots == 0:
-        checkpoint(epoch)          
+if __name__ == '__main__':
+    params = parse_args()
+
+    params.batchSize = 1
+    params.nEpochs = 100
+    params.snapshots = 5
+    params.start_iter = 1
+    params.lr = 1e-4
+    params.gpu_mode = True
+    params.threads = 0
+    params.decay = 100
+    params.gamma = 0.5
+    params.seed = 42
+    params.data_train = 'PairLIE-training-dataset'
+    params.rgb_range = 1
+    params.save_folder = 'weights'
+    params.output_folder = 'results'
+
+    seed_torch(params.seed)
+    cudnn.benchmark = True
+    cuda = params.gpu_mode
+    if cuda and not torch.cuda.is_available():
+        raise Exception("No GPU found, please run without --cuda")
+
+    print('===> Loading datasets')
+    train_set = get_training_set(params.data_train)
+    training_data_loader = DataLoader(dataset=train_set, num_workers=params.threads, batch_size=params.batchSize, shuffle=True)
+
+    train(params, training_data_loader)

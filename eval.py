@@ -1,38 +1,29 @@
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '3'
+#os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 import time
 import argparse
-from thop import profile
+#from thop import profile
 from net.net import net
 from data import get_eval_set
 from torchvision import transforms
 from torch.utils.data import DataLoader
 from utils import *
 
+def parse_args():
+    parser = argparse.ArgumentParser(description='PairLIE')
+    parser.add_argument('--testBatchSize', type=int, default=1, help='testing batch size')
+    parser.add_argument('--gpu_mode', type=bool, default=True)
+    parser.add_argument('--threads', type=int, default=0, help='number of threads for data loader to use')
+    parser.add_argument('--rgb_range', type=int, default=1, help='maximum value of RGB')
+    #parser.add_argument('--data_test', type=str, default='../dataset/LIE/LOL-test/raw')
+    #parser.add_argument('--data_test', type=str, default='../dataset/LIE/SICE-test/image')
+    parser.add_argument('--data_test', type=str, default='../dataset/LIE/MEF')
+    parser.add_argument('--model', default='weights/PairLIE.pth', help='Pretrained base model')  
+    parser.add_argument('--output_folder', type=str, default='results/MEF/')
+    
+    return parser.parse_args()
 
-parser = argparse.ArgumentParser(description='PairLIE')
-parser.add_argument('--testBatchSize', type=int, default=1, help='testing batch size')
-parser.add_argument('--gpu_mode', type=bool, default=True)
-parser.add_argument('--threads', type=int, default=0, help='number of threads for data loader to use')
-parser.add_argument('--rgb_range', type=int, default=1, help='maximum value of RGB')
-# parser.add_argument('--data_test', type=str, default='../dataset/LIE/LOL-test/raw')
-# parser.add_argument('--data_test', type=str, default='../dataset/LIE/SICE-test/image')
-parser.add_argument('--data_test', type=str, default='../dataset/LIE/MEF')
-parser.add_argument('--model', default='weights/PairLIE.pth', help='Pretrained base model')  
-parser.add_argument('--output_folder', type=str, default='results/MEF/')
-opt = parser.parse_args()
-
-
-print('===> Loading datasets')
-test_set = get_eval_set(opt.data_test)
-testing_data_loader = DataLoader(dataset=test_set, num_workers=opt.threads, batch_size=1, shuffle=False)
-
-print('===> Building model')
-model = net().cuda()
-model.load_state_dict(torch.load(opt.model, map_location=lambda storage, loc: storage))
-print('Pre-trained model is loaded.')
-
-def eval():
+def eval(params, model, testing_data_loader):
     torch.set_grad_enabled(False)
     model.eval()
     print('\nEvaluation:')
@@ -49,12 +40,12 @@ def eval():
             # flops, params = profile(model, (input,))
             # print('flops: ', flops, 'params: ', params)
 
-        if not os.path.exists(opt.output_folder):
-            os.mkdir(opt.output_folder)
-            os.mkdir(opt.output_folder + 'L/')
-            os.mkdir(opt.output_folder + 'R/')
-            os.mkdir(opt.output_folder + 'I/')  
-            os.mkdir(opt.output_folder + 'D/')                       
+        if not os.path.exists(params.output_folder):
+            os.makedirs(params.output_folder, exist_ok=True)
+            os.makedirs(params.output_folder + 'L/', exist_ok=True)
+            os.makedirs(params.output_folder + 'R/', exist_ok=True)
+            os.makedirs(params.output_folder + 'I/', exist_ok=True)
+            os.makedirs(params.output_folder + 'D/', exist_ok=True)
 
         L = L.cpu()
         R = R.cpu()
@@ -66,13 +57,32 @@ def eval():
         I_img = transforms.ToPILImage()(I.squeeze(0))                
         D_img = transforms.ToPILImage()(D.squeeze(0))  
 
-        L_img.save(opt.output_folder + '/L/' + name[0])
-        R_img.save(opt.output_folder + '/R/' + name[0])
-        I_img.save(opt.output_folder + '/I/' + name[0])  
-        D_img.save(opt.output_folder + '/D/' + name[0])                       
+        L_img.save(params.output_folder + '/L/' + name[0])
+        R_img.save(params.output_folder + '/R/' + name[0])
+        I_img.save(params.output_folder + '/I/' + name[0])  
+        D_img.save(params.output_folder + '/D/' + name[0])                       
 
     torch.set_grad_enabled(True)
 
-eval()
+if __name__ == '__main__':
 
+    params = parse_args()
 
+    params.testBatchSize = 1
+    params.gpu_mode = True
+    params.threads = 0
+    params.rgb_range = 1
+    params.data_test = 'PairLIE-testing-dataset/MEF'
+    params.model = 'weights/PairLIE.pth'
+    params.output_folder = 'results/MEF/'
+
+    print('===> Loading datasets')
+    test_set = get_eval_set(params.data_test)
+    testing_data_loader = DataLoader(dataset=test_set, num_workers=params.threads, batch_size=params.testBatchSize, shuffle=False)
+
+    print('===> Building model')
+    model = net().cuda()
+    model.load_state_dict(torch.load(params.model, map_location=lambda storage, loc: storage))
+    print('Pre-trained model is loaded.')
+
+    eval(params, model, testing_data_loader)
