@@ -13,6 +13,7 @@ from data import get_training_set, get_eval_set, get_training_set_hsi
 from utils import *
 from datetime import datetime
 import json
+from torch.utils.tensorboard import SummaryWriter
 
 REPORT_INTERVAL = 3
 
@@ -43,7 +44,7 @@ def seed_torch(seed):
     torch.cuda.manual_seed_all(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
 
-def train_on_epoch(epoch, model, training_data_loader, optimizer, stats, save_dir):
+def train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats, save_dir):
     train_loss1_meter = AvgMeter()
     train_loss2_meter = AvgMeter()
     train_loss3_meter = AvgMeter()
@@ -77,6 +78,11 @@ def train_on_epoch(epoch, model, training_data_loader, optimizer, stats, save_di
         loss2_meter.update(loss2.item())
         loss3_meter.update(loss3.item())
         lossTotal_meter.update(loss.item())
+
+        writer.add_scalar("Loss/train", loss, epoch)
+        writer.add_scalar("C_loss/train", loss1, epoch)
+        writer.add_scalar("R_loss/train", loss2, epoch)
+        writer.add_scalar("P_loss/train", loss3, epoch)
 
         optimizer.zero_grad()
         loss.backward()
@@ -149,15 +155,20 @@ def train(params, training_data_loader):
              'loss2': [],
              'loss3': []}
 
+    writer = SummaryWriter()
     train_start = datetime.now()
     for epoch in range(params.start_iter, params.nEpochs + 1):
         print('\nEPOCH {:d} / {:d}'.format(epoch, params.nEpochs))
-        train_on_epoch(epoch, model, training_data_loader, optimizer, stats, save_dir)
+        train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats, save_dir)
         scheduler.step()
         if epoch % params.snapshots == 0:
             checkpoint(epoch, model.state_dict(), save_dir)
     
     train_elapsed = time_elapsed_since(train_start)[0]
+
+    writer.flush()
+    writer.close()
+
     print('\nTraining done! Total elapsed time: {}\n'.format(train_elapsed))
 
 if __name__ == '__main__':
