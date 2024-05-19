@@ -41,10 +41,10 @@ def eval(params, model, testing_data_loader):
             # print('flops: ', flops, 'params: ', params)
 
         os.makedirs(params.output_folder, exist_ok=True)
-        os.makedirs(params.output_folder + 'L/', exist_ok=True)
-        os.makedirs(params.output_folder + 'R/', exist_ok=True)
-        os.makedirs(params.output_folder + 'I/', exist_ok=True)
-        os.makedirs(params.output_folder + 'D/', exist_ok=True)
+        os.makedirs(params.output_folder + '/L/', exist_ok=True)
+        os.makedirs(params.output_folder + '/R/', exist_ok=True)
+        os.makedirs(params.output_folder + '/I/', exist_ok=True)
+        os.makedirs(params.output_folder + '/D/', exist_ok=True)
 
         L_dic = {'data': torch.permute(L.squeeze(0), (1, 2, 0)).cpu().numpy()}
         R_dic = {'data': torch.permute(R.squeeze(0), (1, 2, 0)).cpu().numpy()}
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     params.rgb_range = 1
     params.data_test = 'test_ll'
     params.model = 'weights/train_20240511_235131/epoch_50.pth'
-    params.output_folder = 'results/hsi/'
+    params.output_folder = 'results/hsi'
 
     print('===> Loading datasets')
     test_set = get_eval_set_hsi(params.data_test)
