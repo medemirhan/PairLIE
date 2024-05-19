@@ -83,6 +83,7 @@ def train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats,
         writer.add_scalar("C_loss/train", loss1, epoch)
         writer.add_scalar("R_loss/train", loss2, epoch)
         writer.add_scalar("P_loss/train", loss3, epoch)
+        writer.add_scalar("Lr/train", optimizer.param_groups[0]['lr'], epoch)
 
         optimizer.zero_grad()
         loss.backward()
