@@ -67,6 +67,10 @@ def train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats,
         im1, im2, file1, file2 = batch[0], batch[1], batch[2], batch[3]
         im1 = im1.cuda()
         im2 = im2.cuda()
+
+        im1 = im1.unsqueeze(2)
+        im2 = im2.unsqueeze(2)
+
         L1, R1, X1 = model(im1)
         L2, R2, X2 = model(im2)   
         loss1 = C_loss(R1, R2)
