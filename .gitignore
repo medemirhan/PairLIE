@@ -1,0 +1,19 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+### VisualStudioCode ###
+.vscode/
+
+hsi_dataset/
+PairLIE-our-results/
+PairLIE-testing-dataset/
+PairLIE-training-dataset/
+results/
+runs/
+test_ll/
+train_ll/
+train_ll_histeq/
+weights/
+!weights/PairLIE.pth

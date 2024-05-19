@@ -68,8 +68,8 @@ def train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats,
         im1 = im1.cuda()
         im2 = im2.cuda()
 
-        im1 = im1.unsqueeze(2)
-        im2 = im2.unsqueeze(2)
+        #im1 = im1.unsqueeze(2)
+        #im2 = im2.unsqueeze(2)
 
         L1, R1, X1 = model(im1)
         L2, R2, X2 = model(im2)   
@@ -186,11 +186,11 @@ if __name__ == '__main__':
     params.lr = 1e-4
     params.gpu_mode = True
     params.threads = 0
-    params.decay = 100
+    params.decay = 50
     params.gamma = 0.5
     params.seed = 42
     #params.data_train = 'PairLIE-training-dataset'
-    params.data_train = 'train_ll_histeq'
+    params.data_train = 'train_ll'
     params.rgb_range = 1
     params.save_folder = 'weights'
     params.output_folder = 'results'

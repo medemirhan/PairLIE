@@ -88,7 +88,7 @@ class L_net(nn.Module):
         super(L_net, self).__init__()
         self.L_net = nn.Sequential(
             nn.ReflectionPad2d(1),
-            nn.Conv2d(64, num, 3, 1, 0),
+            nn.Conv2d(32, num, 3, 1, 0),
             nn.ReLU(),               
             nn.ReflectionPad2d(1),
             nn.Conv2d(num, num, 3, 1, 0),
@@ -113,7 +113,7 @@ class R_net(nn.Module):
 
         self.R_net = nn.Sequential(
             nn.ReflectionPad2d(1),
-            nn.Conv2d(64, num, 3, 1, 0),
+            nn.Conv2d(32, num, 3, 1, 0),
             nn.ReLU(), 
             nn.ReflectionPad2d(1),
             nn.Conv2d(num, num, 3, 1, 0),
@@ -125,7 +125,7 @@ class R_net(nn.Module):
             nn.Conv2d(num, num, 3, 1, 0),            
             nn.ReLU(),   
             nn.ReflectionPad2d(1),
-            nn.Conv2d(num, 64, 3, 1, 0),
+            nn.Conv2d(num, 32, 3, 1, 0),
         )
 
     def forward(self, input):
@@ -136,7 +136,7 @@ class N_net(nn.Module):
         super(N_net, self).__init__()
         self.N_net = nn.Sequential(
             nn.ReflectionPad2d(1),
-            nn.Conv2d(64, num, 3, 1, 0),
+            nn.Conv2d(32, num, 3, 1, 0),
             nn.ReLU(), 
             nn.ReflectionPad2d(1),
             nn.Conv2d(num, num, 3, 1, 0),
@@ -148,7 +148,7 @@ class N_net(nn.Module):
             nn.Conv2d(num, num, 3, 1, 0),            
             nn.ReLU(),   
             nn.ReflectionPad2d(1),
-            nn.Conv2d(num, 64, 3, 1, 0),
+            nn.Conv2d(num, 32, 3, 1, 0),
         )
 
     def forward(self, input):
@@ -158,12 +158,12 @@ class N_net(nn.Module):
 class net(nn.Module):
     def __init__(self):
         super(net, self).__init__()        
-        '''self.L_net = L_net(num=256)
+        self.L_net = L_net(num=256)
         self.R_net = R_net(num=256)
-        self.N_net = N_net(num=256)'''
-        self.L_net = Fea_net_1_out()
+        self.N_net = N_net(num=256)
+        '''self.L_net = Fea_net_1_out()
         self.R_net = Fea_net_64_out()
-        self.N_net = Fea_net_64_out()
+        self.N_net = Fea_net_64_out()'''
 
     def forward(self, input):
         x = self.N_net(input)
