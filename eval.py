@@ -40,12 +40,11 @@ def eval(params, model, testing_data_loader):
             # flops, params = profile(model, (input,))
             # print('flops: ', flops, 'params: ', params)
 
-        if not os.path.exists(params.output_folder):
-            os.makedirs(params.output_folder, exist_ok=True)
-            os.makedirs(params.output_folder + 'L/', exist_ok=True)
-            os.makedirs(params.output_folder + 'R/', exist_ok=True)
-            os.makedirs(params.output_folder + 'I/', exist_ok=True)
-            os.makedirs(params.output_folder + 'D/', exist_ok=True)
+        os.makedirs(params.output_folder, exist_ok=True)
+        os.makedirs(params.output_folder + '/L/', exist_ok=True)
+        os.makedirs(params.output_folder + '/R/', exist_ok=True)
+        os.makedirs(params.output_folder + '/I/', exist_ok=True)
+        os.makedirs(params.output_folder + '/D/', exist_ok=True)
 
         L = L.cpu()
         R = R.cpu()
@@ -72,9 +71,9 @@ if __name__ == '__main__':
     params.gpu_mode = True
     params.threads = 0
     params.rgb_range = 1
-    params.data_test = 'PairLIE-testing-dataset/MEF'
-    params.model = 'weights/train_20240511_163903/epoch_50.pth'
-    params.output_folder = 'results/MEF/'
+    params.data_test = 'hsi_dataset/indoor_rgb/test/test_selected_ones'
+    params.model = 'weights/train_20240519_234322/epoch_105.pth'
+    params.output_folder = 'results/hsi_rgb'
 
     print('===> Loading datasets')
     test_set = get_eval_set(params.data_test)

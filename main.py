@@ -83,6 +83,7 @@ def train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats,
         writer.add_scalar("C_loss/train", loss1, epoch)
         writer.add_scalar("R_loss/train", loss2, epoch)
         writer.add_scalar("P_loss/train", loss3, epoch)
+        writer.add_scalar("Lr/train", optimizer.param_groups[0]['lr'], epoch)
 
         optimizer.zero_grad()
         loss.backward()
@@ -175,16 +176,16 @@ if __name__ == '__main__':
     params = parse_args()
 
     params.batchSize = 1
-    params.nEpochs = 50
+    params.nEpochs = 500
     params.snapshots = 5
     params.start_iter = 1
     params.lr = 1e-4
     params.gpu_mode = True
     params.threads = 0
-    params.decay = 100
+    params.decay = 50
     params.gamma = 0.5
     params.seed = 42
-    params.data_train = 'PairLIE-training-dataset'
+    params.data_train = 'hsi_dataset/indoor_rgb/non_normalized'
     params.rgb_range = 1
     params.save_folder = 'weights'
     params.output_folder = 'results'
