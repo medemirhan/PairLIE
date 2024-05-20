@@ -190,7 +190,7 @@ if __name__ == '__main__':
     params.gamma = 0.5
     params.seed = 42
     #params.data_train = 'PairLIE-training-dataset'
-    params.data_train = 'train_ll'
+    params.data_train = 'train_ll_divided_in_the_mid'
     params.rgb_range = 1
     params.save_folder = 'weights'
     params.output_folder = 'results'
