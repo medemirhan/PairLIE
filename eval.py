@@ -66,9 +66,9 @@ if __name__ == '__main__':
     params.gpu_mode = True
     params.threads = 0
     params.rgb_range = 1
-    params.data_test = 'test_ll_divided_in_the_mid/indoor'
-    params.model = 'weights/train_20240520_162818/epoch_120.pth'
-    params.output_folder = 'results/hsi_4'
+    params.data_test = 'test_ll_divided_in_the_mid/outdoor'
+    params.model = 'weights/train_20240520_162818/epoch_140.pth'
+    params.output_folder = 'results/hsi_4_outdoor'
 
     print('===> Loading datasets')
     test_set = get_eval_set_hsi(params.data_test)
