@@ -70,8 +70,8 @@ def metrics_hsi(im_dir, label_dir):
         im1 = im1.unsqueeze(0)
         im2 = im2.unsqueeze(0)
 
-        score_psnr = psnr(im1, im2, data_range=None) # data range onemli. incele!
-        score_ssim = ssim(im1, im2, data_range=None) # data range onemli. incele!
+        score_psnr = psnr(im1, im2, data_range=torch.max(torch.max(im1),torch.max(im2))) # data range onemli. incele!
+        score_ssim = ssim(im1, im2, data_range=torch.max(torch.max(im1),torch.max(im2))) # data range onemli. incele!
         score_sam = sam(im1, im2, reduction='elementwise_mean') # reduction onemli. incele!
     
         avg_psnr += score_psnr
@@ -89,8 +89,8 @@ if __name__ == '__main__':
     #im_dir = 'PairLIE-our-results/LOL-test/I/*.png'
     #label_dir = 'PairLIE-testing-dataset/LOL-test/reference'
 
-    im_dir = 'results/sonuc/deneme/*.mat'
-    label_dir = 'test_reference/deneme'
+    im_dir = 'results/test_ll_overlap_3_bands/1/I/*.mat'
+    label_dir = 'test_ll_overlap_3_bands/1'
 
     avg_psnr, avg_ssim, avg_sam = metrics_hsi(os.path.normpath(im_dir), os.path.normpath(label_dir))
     print("===> Avg.PSNR : {:.4f} dB ".format(avg_psnr))

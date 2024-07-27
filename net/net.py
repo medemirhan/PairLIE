@@ -84,11 +84,11 @@ class Fea_net_64_out(nn.Module):
         return x
 
 class L_net(nn.Module):
-    def __init__(self, num=64):
+    def __init__(self, inp_size=32, num=64):
         super(L_net, self).__init__()
         self.L_net = nn.Sequential(
             nn.ReflectionPad2d(1),
-            nn.Conv2d(32, num, 3, 1, 0),
+            nn.Conv2d(inp_size, num, 3, 1, 0),
             nn.ReLU(),               
             nn.ReflectionPad2d(1),
             nn.Conv2d(num, num, 3, 1, 0),
@@ -108,12 +108,12 @@ class L_net(nn.Module):
 
 
 class R_net(nn.Module):
-    def __init__(self, num=64):
+    def __init__(self, inp_size=32, num=64):
         super(R_net, self).__init__()
 
         self.R_net = nn.Sequential(
             nn.ReflectionPad2d(1),
-            nn.Conv2d(32, num, 3, 1, 0),
+            nn.Conv2d(inp_size, num, 3, 1, 0),
             nn.ReLU(), 
             nn.ReflectionPad2d(1),
             nn.Conv2d(num, num, 3, 1, 0),
@@ -125,18 +125,18 @@ class R_net(nn.Module):
             nn.Conv2d(num, num, 3, 1, 0),            
             nn.ReLU(),   
             nn.ReflectionPad2d(1),
-            nn.Conv2d(num, 32, 3, 1, 0),
+            nn.Conv2d(num, inp_size, 3, 1, 0),
         )
 
     def forward(self, input):
         return torch.relu(self.R_net(input))
 
 class N_net(nn.Module):
-    def __init__(self, num=64):
+    def __init__(self, inp_size=32, num=64):
         super(N_net, self).__init__()
         self.N_net = nn.Sequential(
             nn.ReflectionPad2d(1),
-            nn.Conv2d(32, num, 3, 1, 0),
+            nn.Conv2d(inp_size, num, 3, 1, 0),
             nn.ReLU(), 
             nn.ReflectionPad2d(1),
             nn.Conv2d(num, num, 3, 1, 0),
@@ -148,7 +148,7 @@ class N_net(nn.Module):
             nn.Conv2d(num, num, 3, 1, 0),            
             nn.ReLU(),   
             nn.ReflectionPad2d(1),
-            nn.Conv2d(num, 32, 3, 1, 0),
+            nn.Conv2d(num, inp_size, 3, 1, 0),
         )
 
     def forward(self, input):
@@ -158,9 +158,9 @@ class N_net(nn.Module):
 class net(nn.Module):
     def __init__(self):
         super(net, self).__init__()        
-        self.L_net = L_net(num=256)
-        self.R_net = R_net(num=256)
-        self.N_net = N_net(num=256)
+        self.L_net = L_net(inp_size=3, num=64)
+        self.R_net = R_net(inp_size=3, num=64)
+        self.N_net = N_net(inp_size=3, num=64)
         '''self.L_net = Fea_net_1_out()
         self.R_net = Fea_net_64_out()
         self.N_net = Fea_net_64_out()'''
