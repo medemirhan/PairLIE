@@ -15,7 +15,7 @@ from datetime import datetime
 import json
 from torch.utils.tensorboard import SummaryWriter
 
-REPORT_INTERVAL = 3
+REPORT_INTERVAL = 5
 
 def parse_args():
     # Training settings
@@ -141,7 +141,7 @@ def checkpoint(epoch, model_state_dict, dir):
 
 def train(params, training_data_loader):
     print('===> Building model ')
-    model = net().cuda()
+    model = net(inp_size=params.inp_channels).cuda()
     optimizer = optim.Adam(model.parameters(), lr=params.lr, betas=(0.9, 0.999), eps=1e-8)
 
     model_timestamp = f'{datetime.now():{""}%Y%m%d_%H%M%S}'
@@ -190,7 +190,8 @@ if __name__ == '__main__':
     params.gamma = 0.5
     params.seed = 42
     #params.data_train = 'PairLIE-training-dataset'
-    params.data_train = 'train_ll_overlap_3_bands'
+    params.data_train = 'train_ll_overlap_10_bands'
+    params.inp_channels = 10
     params.rgb_range = 1
     params.save_folder = 'weights'
     params.output_folder = 'results'

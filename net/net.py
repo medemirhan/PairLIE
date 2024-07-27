@@ -156,11 +156,11 @@ class N_net(nn.Module):
 
 
 class net(nn.Module):
-    def __init__(self):
+    def __init__(self, inp_size=32):
         super(net, self).__init__()        
-        self.L_net = L_net(inp_size=3, num=64)
-        self.R_net = R_net(inp_size=3, num=64)
-        self.N_net = N_net(inp_size=3, num=64)
+        self.L_net = L_net(inp_size=inp_size, num=64)
+        self.R_net = R_net(inp_size=inp_size, num=64)
+        self.N_net = N_net(inp_size=inp_size, num=64)
         '''self.L_net = Fea_net_1_out()
         self.R_net = Fea_net_64_out()
         self.N_net = Fea_net_64_out()'''

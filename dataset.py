@@ -39,8 +39,8 @@ class DatasetFromFolder(data.Dataset):
         im1 = utils.load_hsi_as_tensor(data_filenames[index1 - 1])
         im2 = utils.load_hsi_as_tensor(data_filenames[index2 - 1])
 
-        im1 = im1 / torch.max(im1)
-        im2 = im2 / torch.max(im2)
+        #im1 = im1 / torch.max(im1)
+        #im2 = im2 / torch.max(im2)
 
         _, file1 = os.path.split(data_filenames[index1-1])
         _, file2 = os.path.split(data_filenames[index2-1])
