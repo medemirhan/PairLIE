@@ -89,8 +89,8 @@ if __name__ == '__main__':
     #im_dir = 'PairLIE-our-results/LOL-test/I/*.png'
     #label_dir = 'PairLIE-testing-dataset/LOL-test/reference'
 
-    im_dir = 'results/test_ll_overlap_3_bands/1/I/*.mat'
-    label_dir = 'test_ll_overlap_3_bands/1'
+    im_dir = 'results/test_ll_overlap_10_bands/1/I/*.mat'
+    label_dir = 'test_ll_overlap_10_bands/1'
 
     avg_psnr, avg_ssim, avg_sam = metrics_hsi(os.path.normpath(im_dir), os.path.normpath(label_dir))
     print("===> Avg.PSNR : {:.4f} dB ".format(avg_psnr))

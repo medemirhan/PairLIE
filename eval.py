@@ -66,16 +66,17 @@ if __name__ == '__main__':
     params.gpu_mode = True
     params.threads = 0
     params.rgb_range = 1
-    params.data_test = 'test_ll_overlap_3_bands/1'
-    params.model = 'weights/train_20240721_173723/epoch_200.pth'
-    params.output_folder = 'results/test_ll_overlap_3_bands/1'
+    params.data_test = 'test_ll_overlap_10_bands/1'
+    params.model = 'weights/train_20240728_004658/epoch_300.pth'
+    params.output_folder = 'results/test_ll_overlap_10_bands/1'
+    params.inp_channels = 10
 
     print('===> Loading datasets')
     test_set = get_eval_set_hsi(params.data_test)
     testing_data_loader = DataLoader(dataset=test_set, num_workers=params.threads, batch_size=params.testBatchSize, shuffle=False)
 
     print('===> Building model')
-    model = net().cuda()
+    model = net(inp_size=params.inp_channels).cuda()
     model.load_state_dict(torch.load(params.model, map_location=lambda storage, loc: storage))
     print('Pre-trained model is loaded.')
 

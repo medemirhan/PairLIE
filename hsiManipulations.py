@@ -85,6 +85,7 @@ def mergeOverlappingHsis(input_dir, input_file_prefix, total_bands, output_band_
 
 if __name__ == '__main__':
 
+    '''
     # Driver code for divideHsiOverlapping
 
     input_dir = 'hsi_dataset'
@@ -100,12 +101,11 @@ if __name__ == '__main__':
     '''
     # Driver code for mergeOverlappingHsis
 
-    input_dir = 'results/test_ll_overlap_3_bands/1/I'
+    input_dir = 'results/test_ll_overlap_10_bands/1/I'
     input_file_prefix = '007_2_2021-01-20_024_renamed'
     total_bands = 64
     output_band_num = 10
     overlap = 4
 
     mergeOverlappingHsis(input_dir, input_file_prefix, total_bands, output_band_num, overlap)
-    '''
     
