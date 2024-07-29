@@ -30,12 +30,13 @@ def eval(params, model, testing_data_loader):
     for batch in testing_data_loader:
         with torch.no_grad():
             input, name = batch[0], batch[1]
-        input = input.cuda()
+        if params.gpu_mode:
+            input = input.cuda()
         print(name)
 
         with torch.no_grad():
             L, R, X = model(input)
-            D = input- X        
+            D = input - X
             I = torch.pow(L,0.2) * R  # default=0.2, LOL=0.14.
             # flops, params = profile(model, (input,))
             # print('flops: ', flops, 'params: ', params)
@@ -63,20 +64,25 @@ if __name__ == '__main__':
     params = parse_args()
 
     params.testBatchSize = 1
-    params.gpu_mode = True
+    params.gpu_mode = False
     params.threads = 0
     params.rgb_range = 1
-    params.data_test = 'test_ll_overlap_10_bands/1'
-    params.model = 'weights/train_20240728_004658/epoch_300.pth'
-    params.output_folder = 'results/test_ll_overlap_10_bands/1'
+    params.data_test = 'test_ll_overlap_10_bands/2'
+    params.model = 'weights/train_20240729_044248/epoch_40.pth'
+    params.output_folder = 'results/test_ll_overlap_10_bands_spectral_relu/2'
     params.inp_channels = 10
+    params.num_3d_filters = 16
+    params.num_conv_filters = 10
 
     print('===> Loading datasets')
     test_set = get_eval_set_hsi(params.data_test)
     testing_data_loader = DataLoader(dataset=test_set, num_workers=params.threads, batch_size=params.testBatchSize, shuffle=False)
 
     print('===> Building model')
-    model = net(inp_size=params.inp_channels).cuda()
+    if params.gpu_mode:
+        model = net(params.num_3d_filters, params.num_conv_filters, params.inp_channels).cuda()
+    else:
+        model = net(params.num_3d_filters, params.num_conv_filters, params.inp_channels)
     model.load_state_dict(torch.load(params.model, map_location=lambda storage, loc: storage))
     print('Pre-trained model is loaded.')
 

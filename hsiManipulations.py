@@ -80,7 +80,7 @@ def mergeOverlappingHsis(input_dir, input_file_prefix, total_bands, output_band_
         start_band = end_band - overlap
 
     # Save the merged data
-    output_file = os.path.join(input_dir, 'merged_data.mat')
+    output_file = os.path.join(input_dir, input_file_prefix + '.mat')
     savemat(output_file, {'data': data})
 
 if __name__ == '__main__':
@@ -101,8 +101,8 @@ if __name__ == '__main__':
     '''
     # Driver code for mergeOverlappingHsis
 
-    input_dir = 'results/test_ll_overlap_10_bands/1/I'
-    input_file_prefix = '007_2_2021-01-20_024_renamed'
+    input_dir = 'results/test_ll_overlap_10_bands_spectral_relu/2/I'
+    input_file_prefix = 'buildingblock_1ms_renamed'
     total_bands = 64
     output_band_num = 10
     overlap = 4
