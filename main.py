@@ -68,15 +68,12 @@ def train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats,
         im1 = im1.cuda()
         im2 = im2.cuda()
 
-        #im1 = im1.unsqueeze(2)
-        #im2 = im2.unsqueeze(2)
-
         L1, R1, X1 = model(im1)
         L2, R2, X2 = model(im2)
         loss1 = C_loss(R1, R2)
         loss2 = R_loss(L1, R1, im1, X1)
         loss3 = P_loss(im1, X1)
-        loss =  loss1 * 1 + loss2 * 1 + loss3 * 2
+        loss =  loss1 * 1 + loss2 * 1 + loss3 * 500
 
         loss1_meter.update(loss1.item())
         loss2_meter.update(loss2.item())
@@ -142,7 +139,7 @@ def checkpoint(epoch, model_state_dict, dir):
 def train(params, training_data_loader):
     print('===> Building model ')
 
-    model = net(params.num_3d_filters, params.num_conv_filters, params.inp_channels).cuda()
+    model = net(params.inp_channels).cuda()
 
     optimizer = optim.Adam(model.parameters(), lr=params.lr, betas=(0.9, 0.999), eps=1e-8)
 
@@ -188,17 +185,16 @@ if __name__ == '__main__':
     params.lr = 1e-4
     params.gpu_mode = True
     params.threads = 0
-    params.decay = 50
+    params.decay = 100
     params.gamma = 0.5
     params.seed = 42
-    #params.data_train = 'PairLIE-training-dataset'
-    params.data_train = 'train_ll_overlap_10_bands'
-    params.inp_channels = 10
+    params.data_train = 'PairLIE-training-dataset'
+    params.inp_channels = 3
     params.num_3d_filters = 16
     params.num_conv_filters = 10
     params.rgb_range = 1
     params.save_folder = 'weights'
-    params.output_folder = 'results'
+    params.output_folder = 'results/rgb'
 
     seed_torch(params.seed)
     cudnn.benchmark = True
@@ -207,8 +203,7 @@ if __name__ == '__main__':
         raise Exception("No GPU found, please run without --cuda")
 
     print('===> Loading datasets')
-    #train_set = get_training_set(params.data_train)
-    train_set = get_training_set_hsi(params.data_train)
+    train_set = get_training_set(params.data_train)
     training_data_loader = DataLoader(dataset=train_set, num_workers=params.threads, batch_size=params.batchSize, shuffle=True)
 
     train(params, training_data_loader)

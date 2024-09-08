@@ -47,15 +47,20 @@ def eval(params, model, testing_data_loader):
         os.makedirs(params.output_folder + '/I/', exist_ok=True)
         os.makedirs(params.output_folder + '/D/', exist_ok=True)
 
-        L_dic = {'data': torch.permute(L.squeeze(0), (1, 2, 0)).cpu().numpy()}
-        R_dic = {'data': torch.permute(R.squeeze(0), (1, 2, 0)).cpu().numpy()}
-        I_dic = {'data': torch.permute(I.squeeze(0), (1, 2, 0)).cpu().numpy()}
-        D_dic = {'data': torch.permute(D.squeeze(0), (1, 2, 0)).cpu().numpy()}
+        L = L.cpu()
+        R = R.cpu()
+        I = I.cpu()
+        D = D.cpu()        
 
-        sio.savemat(params.output_folder + '/L/' + name[0], L_dic)
-        sio.savemat(params.output_folder + '/R/' + name[0], R_dic)
-        sio.savemat(params.output_folder + '/I/' + name[0], I_dic)
-        sio.savemat(params.output_folder + '/D/' + name[0], D_dic)
+        L_img = transforms.ToPILImage()(L.squeeze(0))
+        R_img = transforms.ToPILImage()(R.squeeze(0))
+        I_img = transforms.ToPILImage()(I.squeeze(0))                
+        D_img = transforms.ToPILImage()(D.squeeze(0))  
+
+        L_img.save(params.output_folder + '/L/' + name[0])
+        R_img.save(params.output_folder + '/R/' + name[0])
+        I_img.save(params.output_folder + '/I/' + name[0])  
+        D_img.save(params.output_folder + '/D/' + name[0])                       
 
     torch.set_grad_enabled(True)
 
@@ -67,22 +72,22 @@ if __name__ == '__main__':
     params.gpu_mode = False
     params.threads = 0
     params.rgb_range = 1
-    params.data_test = 'test_ll_overlap_10_bands/2'
-    params.model = 'weights/train_20240729_044248/epoch_40.pth'
-    params.output_folder = 'results/test_ll_overlap_10_bands_spectral_relu/2'
-    params.inp_channels = 10
+    params.data_test = 'PairLIE-testing-dataset/LOL-test/raw'
+    params.model = 'weights/train_20240908_172519/epoch_60.pth'
+    params.output_folder = 'results/rgb3'
+    params.inp_channels = 3
     params.num_3d_filters = 16
     params.num_conv_filters = 10
 
     print('===> Loading datasets')
-    test_set = get_eval_set_hsi(params.data_test)
+    test_set = get_eval_set(params.data_test)
     testing_data_loader = DataLoader(dataset=test_set, num_workers=params.threads, batch_size=params.testBatchSize, shuffle=False)
 
     print('===> Building model')
     if params.gpu_mode:
-        model = net(params.num_3d_filters, params.num_conv_filters, params.inp_channels).cuda()
+        model = net(params.inp_channels).cuda()
     else:
-        model = net(params.num_3d_filters, params.num_conv_filters, params.inp_channels)
+        model = net(params.inp_channels)
     model.load_state_dict(torch.load(params.model, map_location=lambda storage, loc: storage))
     print('Pre-trained model is loaded.')
 

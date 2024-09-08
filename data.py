@@ -25,6 +25,7 @@ def transform4():
 def get_training_set(data_dir):
     return DatasetFromFolder(data_dir, transform=transform1())
 
+
 def get_eval_set(data_dir):
     return DatasetFromFolderEval(data_dir, transform=transform2())
 
