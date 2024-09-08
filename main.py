@@ -185,10 +185,10 @@ if __name__ == '__main__':
     params.lr = 1e-4
     params.gpu_mode = True
     params.threads = 0
-    params.decay = 100
+    params.decay = 50
     params.gamma = 0.5
     params.seed = 42
-    params.data_train = 'PairLIE-training-dataset'
+    params.data_train = 'hsi_dataset/indoor_rgb/non_normalized'
     params.inp_channels = 3
     params.num_3d_filters = 16
     params.num_conv_filters = 10
