@@ -96,14 +96,18 @@ if __name__ == '__main__':
     #label_dir = 'PairLIE-testing-dataset/LOL-test/reference'
     globalMin = 0.0708354
     globalMax = 1.7410845
+    lowLightMin = 0.0708354
+    lowLightMax = 0.2173913
+    normalLightMin = 0.0708354
+    normalLightMax = 1.7410845
 
     '''globalMin = 0.
     globalMax = 1.'''
 
-    im_dir = 'results/test_ll_overlap_10_bands_spectral_relu/combined/*.mat'
+    im_dir = 'results/test_ll_overlap_10_bands_spectral_spatial/combined/*.mat'
     label_dir = 'test_ll'
 
-    avg_psnr, avg_ssim, avg_sam = metrics_hsi(os.path.normpath(im_dir), os.path.normpath(label_dir), data_min=globalMin, data_max=globalMax)
+    avg_psnr, avg_ssim, avg_sam = metrics_hsi(os.path.normpath(im_dir), os.path.normpath(label_dir), data_min=lowLightMin, data_max=lowLightMax)
     print("===> Avg.PSNR : {:.4f} dB ".format(avg_psnr))
     print("===> Avg.SSIM : {:.4f} ".format(avg_ssim))
     print("===> Avg.SAM  : {:.4f} ".format(avg_sam))

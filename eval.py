@@ -67,9 +67,9 @@ if __name__ == '__main__':
     params.gpu_mode = False
     params.threads = 0
     params.rgb_range = 1
-    params.data_test = 'test_ll_overlap_10_bands/2'
-    params.model = 'weights/train_20240729_044248/epoch_40.pth'
-    params.output_folder = 'results/test_ll_overlap_10_bands_spectral_relu/2'
+    params.data_test = 'test_ll_overlap_10_bands/1'
+    params.model = 'weights/train_20240915_185118/epoch_70.pth'
+    params.output_folder = 'results/test_ll_overlap_10_bands_spectral_spatial/1'
     params.inp_channels = 10
     params.num_3d_filters = 16
     params.num_conv_filters = 10
@@ -80,9 +80,9 @@ if __name__ == '__main__':
 
     print('===> Building model')
     if params.gpu_mode:
-        model = net(params.num_3d_filters, params.num_conv_filters, params.inp_channels).cuda()
+        model = net(params.inp_channels).cuda()
     else:
-        model = net(params.num_3d_filters, params.num_conv_filters, params.inp_channels)
+        model = net(params.inp_channels)
     model.load_state_dict(torch.load(params.model, map_location=lambda storage, loc: storage))
     print('Pre-trained model is loaded.')
 

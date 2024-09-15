@@ -142,7 +142,7 @@ def checkpoint(epoch, model_state_dict, dir):
 def train(params, training_data_loader):
     print('===> Building model ')
 
-    model = net(params.num_3d_filters, params.num_conv_filters, params.inp_channels).cuda()
+    model = net(params.inp_channels).cuda()
 
     optimizer = optim.Adam(model.parameters(), lr=params.lr, betas=(0.9, 0.999), eps=1e-8)
 

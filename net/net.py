@@ -155,75 +155,87 @@ class N_net(nn.Module):
     def forward(self, input):
         return torch.relu(self.N_net(input))
 
-
 class SpectralConv(nn.Module):
-    def __init__(self, num_filters):
+    def __init__(self, in_channel=1, out_channels=64):
         super(SpectralConv, self).__init__()
-        self.conv3d_1 = nn.Conv3d(1, num_filters, kernel_size=3, padding=1)
-        self.conv3d_2 = nn.Conv3d(1, num_filters, kernel_size=5, padding=2)
-        self.conv3d_3 = nn.Conv3d(1, num_filters, kernel_size=7, padding=3)
+        self.conv3d_1 = nn.Conv3d(in_channel, out_channels, kernel_size=3, padding=1)
+        self.conv3d_2 = nn.Conv3d(in_channel, out_channels, kernel_size=5, padding=2)
+        self.conv3d_3 = nn.Conv3d(in_channel, out_channels, kernel_size=7, padding=3)
+        self.relu = nn.ReLU()
 
     def forward(self, spectral_volume):
         spectral_volume = spectral_volume.unsqueeze(1)  # Shape: (batch_size, 1, bands, height, width)
-        conv1 = torch.relu(self.conv3d_1(spectral_volume))  # Shape: (batch_size, num_filters, bands, height, width)
-        conv2 = torch.relu(self.conv3d_2(spectral_volume))  # Shape: (batch_size, num_filters, bands, height, width)
-        conv3 = torch.relu(self.conv3d_3(spectral_volume))  # Shape: (batch_size, num_filters, bands, height, width)
-        output_volume = torch.cat([conv1, conv2, conv3], dim=1)
+        conv1 = self.conv3d_1(spectral_volume)  # Shape: (batch_size, out_channels, bands, height, width)
+        conv2 = self.conv3d_2(spectral_volume)  # Shape: (batch_size, out_channels, bands, height, width)
+        conv3 = self.conv3d_3(spectral_volume)  # Shape: (batch_size, out_channels, bands, height, width)
+        concat_volume = torch.cat([conv1, conv2, conv3], dim=1)
+        output_volume = self.relu(concat_volume)
         return output_volume
 
-class ConvolutionBlock(nn.Module):
-    def __init__(self, num_filters, output_channels):
-        super(ConvolutionBlock, self).__init__()
-        self.conv2d_1 = nn.Conv2d(num_filters, num_filters, kernel_size=3, padding=1)
-        self.conv2d_2 = nn.Conv2d(num_filters, num_filters, kernel_size=3, padding=1)
-        self.conv2d_3 = nn.Conv2d(num_filters, num_filters, kernel_size=3, padding=1)
-        self.conv2d_4 = nn.Conv2d(num_filters, num_filters, kernel_size=3, padding=1)
-        self.conv2d_5 = nn.Conv2d(num_filters, num_filters, kernel_size=3, padding=1)
-        self.conv2d_6 = nn.Conv2d(num_filters, num_filters, kernel_size=3, padding=1)
-        self.conv2d_7 = nn.Conv2d(num_filters, num_filters, kernel_size=3, padding=1)
-        self.conv2d_8 = nn.Conv2d(num_filters, num_filters, kernel_size=3, padding=1)
-        self.conv2d_9 = nn.Conv2d(num_filters, num_filters, kernel_size=3, padding=1)
-        self.final_conv = nn.Conv2d(num_filters * 4, 1, kernel_size=3, padding=1)
+class SpatialConv(nn.Module):
+    def __init__(self, in_channel, out_channel):
+        super(SpatialConv, self).__init__()
+        self.conv2d_3 = nn.Conv2d(in_channel, out_channel, kernel_size=(3, 3), padding=(1, 1))
+        self.conv2d_5 = nn.Conv2d(in_channel, out_channel, kernel_size=(5, 5), padding=(2, 2))
+        self.conv2d_7 = nn.Conv2d(in_channel, out_channel, kernel_size=(7, 7), padding=(3, 3))
+        self.relu = nn.ReLU()
 
-    def forward(self, volume):
-        conv1 = torch.relu(self.conv2d_1(volume))
-        conv2 = torch.relu(self.conv2d_2(conv1))
-        conv3 = torch.relu(self.conv2d_3(conv2))
-        conv4 = torch.relu(self.conv2d_4(conv3))
-        conv5 = torch.relu(self.conv2d_5(conv4))
-        conv6 = torch.relu(self.conv2d_6(conv5))
-        conv7 = torch.relu(self.conv2d_7(conv6))
-        conv8 = torch.relu(self.conv2d_8(conv7))
-        conv9 = torch.relu(self.conv2d_9(conv8))
-        final_volume = torch.relu(torch.cat([conv3, conv5, conv7, conv9], dim=1))
-        clean_band = torch.relu(self.final_conv(final_volume))
-        return clean_band
+    def forward(self, spatial_band):
+        conv1 = self.conv2d_3(spatial_band)
+        conv2 = self.conv2d_5(spatial_band)
+        conv3 = self.conv2d_7(spatial_band)
+        concat_volume = torch.cat([conv3, conv2, conv1], dim=1)
+        output = self.relu(concat_volume)
+        return output
 
-class Network(nn.Module):
-    def __init__(self, num_3d_filters, num_conv_filters, input_channels):
-        super(Network, self).__init__()
-        self.spectral_conv = SpectralConv(num_3d_filters)
-        self.convolution_block = ConvolutionBlock(num_3d_filters * 3, num_conv_filters)
+class ConvBlock(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super(ConvBlock, self).__init__()
+        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1)
+        self.relu = nn.ReLU()
+    
+    def forward(self, x):
+        return self.relu(self.conv(x))
 
-    def forward(self, spectral_volume):
-        spectral_vol = self.spectral_conv(spectral_volume)
-        # Reshape to merge the bands dimension with the batch dimension
-        batch_size, num_filters, bands, height, width = spectral_vol.shape
-        spectral_vol = spectral_vol.permute(0, 2, 1, 3, 4).reshape(batch_size * bands, num_filters, height, width)
-        residue = self.convolution_block(spectral_vol)
-        # Reshape back to the original batch size
-        residue = residue.view(batch_size, bands, -1, height, width).permute(0, 2, 1, 3, 4).reshape(batch_size, -1, height, width)
-        return residue  # Output shape will be the same as the input spatial dimensions (height, width)
+# First Network: Uses SpectralConv
+class SpectralConvNetwork(nn.Module):
+    def __init__(self, inp_channels):
+        super(SpectralConvNetwork, self).__init__()
+        self.spectral_conv = SpectralConv(in_channel=1, out_channels=inp_channels)
+        self.conv2d = nn.Conv2d(inp_channels * 3, inp_channels, kernel_size=3, padding=1)  # Adjust output channels
+        self.relu = nn.ReLU()
+
+    def forward(self, x):
+        x = self.spectral_conv(x)
+        # Convert 3D output to 2D
+        x = x.mean(dim=2)  # Reduce the 'bands' dimension (assuming it's dim 2)
+        x = self.conv2d(x)
+        return self.relu(x)
+
+# Second Network: Uses SpatialConv
+class SpatialConvNetwork(nn.Module):
+    def __init__(self, inp_channels):
+        super(SpatialConvNetwork, self).__init__()
+        self.spatial_conv = SpatialConv(in_channel=inp_channels, out_channel=inp_channels)
+        self.conv2d_final = nn.Conv2d(inp_channels * 3, 1, kernel_size=3, padding=1)  # Reduce to 1 channel
+        self.relu = nn.ReLU()
+
+    def forward(self, x):
+        x = self.spatial_conv(x)
+        x = self.conv2d_final(x)
+        return self.relu(x)
 
 class net(nn.Module):
-    def __init__(self, num_3d_filters, num_conv_filters, input_channels):
-        super(net, self).__init__()        
-        self.L_net = L_net(inp_size=input_channels, num=64)
-        self.R_net = Network(num_3d_filters, num_conv_filters, input_channels)
-        self.N_net = Network(num_3d_filters, num_conv_filters, input_channels)
+    def __init__(self, inp_size=64):
+        super(net, self).__init__()
+        self.conv_block = ConvBlock(inp_size, inp_size)
+        self.L_net = SpatialConvNetwork(inp_channels=inp_size)
+        self.R_net = SpectralConvNetwork(inp_channels=inp_size)
+        self.N_net = SpectralConvNetwork(inp_channels=inp_size)
 
     def forward(self, input):
-        x = self.N_net(input)
+        preprocessed_input = self.conv_block(input)
+        x = self.N_net(preprocessed_input)
         L = self.L_net(x)
         R = self.R_net(x)
         return L, R, x
