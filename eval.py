@@ -73,32 +73,15 @@ if __name__ == '__main__':
     params.threads = 0
     params.rgb_range = 1
     params.data_test = 'PairLIE-testing-dataset/LOL-test/raw'
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    params.model = 'weights/train_20240908_172519/epoch_60.pth'
-    params.output_folder = 'results/rgb3'
-=======
     params.model = 'weights/train_20240916_011931/epoch_20.pth'
     params.output_folder = 'results/rgb4'
->>>>>>> Stashed changes
-=======
-    params.model = 'weights/train_20240916_011931/epoch_20.pth'
-    params.output_folder = 'results/rgb4'
->>>>>>> Stashed changes
     params.inp_channels = 3
     params.num_3d_filters = 16
     params.num_conv_filters = 10
 
     print('===> Loading datasets')
     test_set = get_eval_set(params.data_test)
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
     #test_set = get_eval_set_hsi(params.data_test)
->>>>>>> Stashed changes
-=======
-    #test_set = get_eval_set_hsi(params.data_test)
->>>>>>> Stashed changes
     testing_data_loader = DataLoader(dataset=test_set, num_workers=params.threads, batch_size=params.testBatchSize, shuffle=False)
 
     print('===> Building model')
