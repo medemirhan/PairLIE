@@ -189,6 +189,14 @@ if __name__ == '__main__':
     params.gamma = 0.5
     params.seed = 42
     params.data_train = 'PairLIE-training-dataset'
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+    #params.data_train = 'train_ll_overlap_10_bands'
+>>>>>>> Stashed changes
+=======
+    #params.data_train = 'train_ll_overlap_10_bands'
+>>>>>>> Stashed changes
     params.inp_channels = 3
     params.num_3d_filters = 16
     params.num_conv_filters = 10
@@ -204,6 +212,14 @@ if __name__ == '__main__':
 
     print('===> Loading datasets')
     train_set = get_training_set(params.data_train)
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+    #train_set = get_training_set_hsi(params.data_train)
+>>>>>>> Stashed changes
+=======
+    #train_set = get_training_set_hsi(params.data_train)
+>>>>>>> Stashed changes
     training_data_loader = DataLoader(dataset=train_set, num_workers=params.threads, batch_size=params.batchSize, shuffle=True)
 
     train(params, training_data_loader)
