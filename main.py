@@ -8,7 +8,7 @@ import torch.optim as optim
 import torch.backends.cudnn as cudnn
 import torch.optim.lr_scheduler as lrs
 from torch.utils.data import DataLoader
-from net.net import net
+from net.net import net, net_new
 from data import get_training_set, get_eval_set, get_training_set_hsi
 from utils import *
 from datetime import datetime
@@ -139,7 +139,7 @@ def checkpoint(epoch, model_state_dict, dir):
 def train(params, training_data_loader):
     print('===> Building model ')
 
-    model = net(params.inp_channels).cuda()
+    model = net_new(params.inp_channels, params.inp_channels, params.inp_channels).cuda()
 
     optimizer = optim.Adam(model.parameters(), lr=params.lr, betas=(0.9, 0.999), eps=1e-8)
 
