@@ -8,7 +8,7 @@ import torch.optim as optim
 import torch.backends.cudnn as cudnn
 import torch.optim.lr_scheduler as lrs
 from torch.utils.data import DataLoader
-from net.net import net, net_new
+from net.net import net
 from data import get_training_set, get_eval_set, get_training_set_hsi
 from utils import *
 from datetime import datetime
@@ -68,12 +68,15 @@ def train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats,
         im1 = im1.cuda()
         im2 = im2.cuda()
 
+        #im1 = im1.unsqueeze(2)
+        #im2 = im2.unsqueeze(2)
+
         L1, R1, X1 = model(im1)
         L2, R2, X2 = model(im2)
         loss1 = C_loss(R1, R2)
         loss2 = R_loss(L1, R1, im1, X1)
         loss3 = P_loss(im1, X1)
-        loss =  loss1 * 1 + loss2 * 1 + loss3 * 500
+        loss =  loss1 * 1 + loss2 * 1 + loss3 * 100
 
         loss1_meter.update(loss1.item())
         loss2_meter.update(loss2.item())
@@ -139,7 +142,7 @@ def checkpoint(epoch, model_state_dict, dir):
 def train(params, training_data_loader):
     print('===> Building model ')
 
-    model = net_new(params.inp_channels, params.inp_channels, params.inp_channels).cuda()
+    model = net(params.inp_channels).cuda()
 
     optimizer = optim.Adam(model.parameters(), lr=params.lr, betas=(0.9, 0.999), eps=1e-8)
 
@@ -180,12 +183,12 @@ if __name__ == '__main__':
 
     params.batchSize = 1
     params.nEpochs = 300
-    params.snapshots = 10
+    params.snapshots = 5
     params.start_iter = 1
     params.lr = 1e-4
     params.gpu_mode = True
     params.threads = 0
-    params.decay = 100
+    params.decay = 50
     params.gamma = 0.5
     params.seed = 42
     params.data_train = 'PairLIE-training-dataset'
@@ -195,7 +198,7 @@ if __name__ == '__main__':
     params.num_conv_filters = 10
     params.rgb_range = 1
     params.save_folder = 'weights'
-    params.output_folder = 'results/rgb'
+    params.output_folder = 'results'
 
     seed_torch(params.seed)
     cudnn.benchmark = True
