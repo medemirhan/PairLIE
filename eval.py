@@ -73,8 +73,8 @@ if __name__ == '__main__':
     params.threads = 0
     params.rgb_range = 1
     params.data_test = 'PairLIE-testing-dataset/LOL-test/raw'
-    params.model = 'weights/train_20240916_014345/epoch_5.pth'
-    params.output_folder = 'results/rgb5'
+    params.model = 'weights/train_20240916_015814/epoch_225.pth'
+    params.output_folder = 'results/rgb6'
     params.inp_channels = 3
     params.num_3d_filters = 16
     params.num_conv_filters = 10

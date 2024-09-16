@@ -66,13 +66,12 @@ def metrics(im_dir, label_dir):
     avg_lpips = 0
     n = 0
     loss_fn = lpips.LPIPS(net='alex')
-    loss_fn.cuda()
 
     for item in sorted(glob.glob(im_dir)):
         n += 1
         im1 = Image.open(item).convert('RGB') 
 
-        name = item.split('/')[-1]
+        name = item.split('\\')[-1]
         # name = name.split('_')[0] + '.JPG'              # for SICE
 
         im2 = Image.open(label_dir + name).convert('RGB')
@@ -85,8 +84,8 @@ def metrics(im_dir, label_dir):
 
         ex_p0 = lpips.im2tensor(cv2.resize(lpips.load_image(item), (h, w)))
         ex_ref = lpips.im2tensor(lpips.load_image(label_dir + name))
-        ex_p0 = ex_p0.cuda()
-        ex_ref = ex_ref.cuda()
+        ex_p0 = ex_p0
+        ex_ref = ex_ref
         score_lpips = loss_fn.forward(ex_ref, ex_p0)
     
         avg_psnr += score_psnr
@@ -101,7 +100,7 @@ def metrics(im_dir, label_dir):
 
 if __name__ == '__main__':
 
-    im_dir = 'results/LOL/I/*.png'
+    im_dir = 'results/rgb6/I/*.png'
     label_dir = 'PairLIE-testing-dataset/LOL-test/reference/'
 
     # im_dir = 'results/SICE/I/*.JPG'
