@@ -76,7 +76,7 @@ def train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats,
         loss1 = C_loss(R1, R2)
         loss2 = R_loss(L1, R1, im1, X1)
         loss3 = P_loss(im1, X1)
-        loss =  loss1 * 1 + loss2 * 1 + loss3 * 2
+        loss =  loss1 * 1 + loss2 * 1 + loss3 * 300
 
         loss1_meter.update(loss1.item())
         loss2_meter.update(loss2.item())
@@ -183,7 +183,7 @@ if __name__ == '__main__':
 
     params.batchSize = 1
     params.nEpochs = 300
-    params.snapshots = 10
+    params.snapshots = 5
     params.start_iter = 1
     params.lr = 1e-4
     params.gpu_mode = True
