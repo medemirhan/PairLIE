@@ -2,6 +2,77 @@ import os
 import numpy as np
 import scipy.io as sio
 
+import os
+import shutil
+
+def separate_files_to_folders(folder1, folder2, destination_folder, constant1, constant2):
+    """
+    Organizes and copies matching files from two folders into numbered subfolders.
+
+    Parameters:
+    - folder1: Path to the first folder containing files with a constant prefix (e.g., 'start_folder1').
+    - folder2: Path to the second folder containing files with a different constant prefix (e.g., 'start_folder2').
+    - destination_folder: Path to the destination where numbered subfolders (1, 2, ..., N) will be created.
+    - constant1: The constant prefix for files in folder1.
+    - constant2: The constant prefix for files in folder2.
+
+    Process:
+    - The function reads all files from folder1 and folder2 that match the given constant prefixes.
+    - It ensures that both folders contain the same number of files and that each file in folder1 has a corresponding match in folder2 based on the remaining part of the filename (after the constant prefix).
+    - The function creates N numbered subfolders in the destination path.
+    - For each matching file pair, it copies the files from folder1 and folder2 into the same numbered subfolder.
+    
+    Example: If folder1 contains 'start_folder1_fileA.mat' and folder2 contains 'start_folder2_fileA.mat',
+    both files will be copied into a subfolder named '1' in the destination folder.
+
+    Example Usage:
+    folder1 = 'train_timelapse_256_patches/gualtar_1645'
+    folder2 = 'train_timelapse_256_patches/gualtar_1944'
+    destination_folder = 'train_timelapse_256_patches'
+    constant1 = 'gualtar_1645'
+    constant2 = 'gualtar_1944'
+    """
+
+    # Get all files in folder1 and folder2
+    files_folder1 = [f for f in os.listdir(folder1) if f.startswith(constant1)]
+    files_folder2 = [f for f in os.listdir(folder2) if f.startswith(constant2)]
+
+    # Ensure the number of files in both folders is the same
+    if len(files_folder1) != len(files_folder2):
+        raise ValueError("Both folders must contain the same number of files")
+
+    # Extract the 'following' part of the filenames
+    def extract_following(filename, constant_part):
+        return filename[len(constant_part):]
+
+    # Create subfolders and copy the files
+    for i, file1 in enumerate(files_folder1):
+        # Extract the 'following' part for the current file from folder1
+        following_part = extract_following(file1, constant1)
+
+        # Generate the corresponding filename for folder2
+        corresponding_file2 = constant2 + following_part
+
+        # Ensure that the corresponding file exists in folder2
+        if corresponding_file2 not in files_folder2:
+            raise FileNotFoundError(f"Corresponding file {corresponding_file2} not found in {folder2}")
+
+        # Create subfolder (e.g., '1', '2', etc.)
+        subfolder_path = os.path.join(destination_folder, str(i + 1))
+        os.makedirs(subfolder_path, exist_ok=True)
+
+        # Copy file from folder1 to the subfolder
+        src_file1 = os.path.join(folder1, file1)
+        dst_file1 = os.path.join(subfolder_path, file1)
+        shutil.copy(src_file1, dst_file1)
+
+        # Copy the corresponding file from folder2 to the subfolder
+        src_file2 = os.path.join(folder2, corresponding_file2)
+        dst_file2 = os.path.join(subfolder_path, corresponding_file2)
+        shutil.copy(src_file2, dst_file2)
+
+        print(f"Copied {file1} and {corresponding_file2} to {subfolder_path}")
+
 def split_matrix_to_patches(input_file_path, h_input, w_input, h_out, w_out, crop_direction, output_folder):
     # Load the .mat file and determine the variable name automatically
     mat_contents = sio.loadmat(input_file_path)
