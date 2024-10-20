@@ -79,7 +79,7 @@ class SpectralConv(nn.Module):
         self.conv3d_1 = nn.Conv3d(in_channel, out_channels, kernel_size=3, padding=1)
         self.conv3d_2 = nn.Conv3d(in_channel, out_channels, kernel_size=5, padding=2)
         self.conv3d_3 = nn.Conv3d(in_channel, out_channels, kernel_size=7, padding=3)
-        self.relu = nn.ReLU()
+        self.relu = nn.GELU()
 
     def forward(self, spectral_volume):
         spectral_volume = spectral_volume.unsqueeze(1)  # Shape: (batch_size, 1, bands, height, width)
@@ -96,7 +96,7 @@ class SpatialConv(nn.Module):
         self.conv2d_3 = nn.Conv2d(in_channel, out_channel, kernel_size=(3, 3), padding=(1, 1))
         self.conv2d_5 = nn.Conv2d(in_channel, out_channel, kernel_size=(5, 5), padding=(2, 2))
         self.conv2d_7 = nn.Conv2d(in_channel, out_channel, kernel_size=(7, 7), padding=(3, 3))
-        self.relu = nn.ReLU()
+        self.relu = nn.GELU()
 
     def forward(self, spatial_band):
         conv1 = self.conv2d_3(spatial_band)
@@ -110,7 +110,7 @@ class ConvBlock(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(ConvBlock, self).__init__()
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1)
-        self.relu = nn.ReLU()
+        self.relu = nn.GELU()
     
     def forward(self, x):
         return self.relu(self.conv(x))
@@ -121,7 +121,7 @@ class SpectralConvNetwork(nn.Module):
         super(SpectralConvNetwork, self).__init__()
         self.spectral_conv = SpectralConv(in_channel=1, out_channels=inp_channels)
         self.conv2d = nn.Conv2d(inp_channels * 3, inp_channels, kernel_size=3, padding=1)  # Adjust output channels
-        self.relu = nn.ReLU()
+        self.relu = nn.GELU()
 
     def forward(self, x):
         x = self.spectral_conv(x)
@@ -136,7 +136,7 @@ class SpatialConvNetwork(nn.Module):
         super(SpatialConvNetwork, self).__init__()
         self.spatial_conv = SpatialConv(in_channel=inp_channels, out_channel=inp_channels)
         self.conv2d_final = nn.Conv2d(inp_channels * 3, 1, kernel_size=3, padding=1)  # Reduce to 1 channel
-        self.relu = nn.ReLU()
+        self.relu = nn.GELU()
 
     def forward(self, x):
         x = self.spatial_conv(x)

@@ -92,8 +92,8 @@ if __name__ == '__main__':
     output_train_dir = 'train_ll_overlap'
     output_test_dir = 'test_ll_overlap'
     total_bands = 64
-    output_band_num = 10
-    overlap = 4
+    output_band_num = 8
+    overlap = 3
     reserved_for_test = ['007_2_2021-01-20_024_renamed.mat', 'buildingblock_1ms_renamed.mat']
 
     divideHsiOverlapping(input_dir, output_train_dir, output_test_dir, total_bands, output_band_num, overlap, reserved_for_test)
@@ -101,12 +101,12 @@ if __name__ == '__main__':
     '''
     # Driver code for mergeOverlappingHsis
 
-    input_dir = 'results/test_ll_overlap_10_bands_spectral_spatial_deep/2/I'
+    input_dir = 'results/test_ll_overlap_8_bands_0_8_gelu_newLoss_norm/2/I'
     #input_file_prefix = '007_2_2021-01-20_024_renamed'
     input_file_prefix = 'buildingblock_1ms_renamed'
-    total_bands = 64
-    output_band_num = 10
-    overlap = 4
+    total_bands = 63
+    output_band_num = 8
+    overlap = 3
 
     mergeOverlappingHsis(input_dir, input_file_prefix, total_bands, output_band_num, overlap)
     

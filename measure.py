@@ -66,6 +66,9 @@ def metrics_hsi(im_dir, label_dir, data_min=None, data_max=None):
         im1 = utils.load_hsi_as_tensor(item)
         name = item.split('\\')[-1]
         im2 = utils.load_hsi_as_tensor(os.path.join(label_dir, name))
+        
+        if im1.shape[0] < im2.shape[0]:
+            im2 = im2[:im1.shape[0], :, :]
 
         im1 = im1.unsqueeze(0)
         im2 = im2.unsqueeze(0)
@@ -88,8 +91,6 @@ def metrics_hsi(im_dir, label_dir, data_min=None, data_max=None):
 
     return avg_psnr, avg_ssim, avg_sam
 
-
-
 if __name__ == '__main__':
 
     #im_dir = 'PairLIE-our-results/LOL-test/I/*.png'
@@ -104,10 +105,11 @@ if __name__ == '__main__':
     '''globalMin = 0.
     globalMax = 1.'''
 
-    im_dir = 'results/test_ll_overlap_10_bands_spectral_spatial_deep/combined/*.mat'
-    label_dir = 'test_ll'
+    im_dir = 'results/test_ll_overlap_8_bands_0_8_gelu_newLoss_norm/combined/*.mat'
+    label_dir = 'label_ll'
 
-    avg_psnr, avg_ssim, avg_sam = metrics_hsi(os.path.normpath(im_dir), os.path.normpath(label_dir), data_min=globalMin, data_max=globalMax)
+    #avg_psnr, avg_ssim, avg_sam = metrics_hsi(os.path.normpath(im_dir), os.path.normpath(label_dir), data_min=globalMin, data_max=globalMax)
+    avg_psnr, avg_ssim, avg_sam = metrics_hsi(os.path.normpath(im_dir), os.path.normpath(label_dir))
     print("===> Avg.PSNR : {:.4f} dB ".format(avg_psnr))
     print("===> Avg.SSIM : {:.4f} ".format(avg_ssim))
     print("===> Avg.SAM  : {:.4f} ".format(avg_sam))
