@@ -76,7 +76,7 @@ def train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats,
         loss1 = C_loss(R1, R2)
         loss2 = R_loss(L1, R1, im1, X1)
         loss3 = P_loss(im1, X1)
-        loss =  loss1 * 0 + loss2 * 1 + loss3 * 5
+        loss =  loss1 * 0.5 + loss2 * 1 + loss3 * 5
 
         loss1_meter.update(loss1.item())
         loss2_meter.update(loss2.item())
@@ -192,8 +192,8 @@ if __name__ == '__main__':
     params.gamma = 0.5
     params.seed = 42
     #params.data_train = 'PairLIE-training-dataset'
-    params.data_train = 'train_ll_overlap_8_bands'
-    params.inp_channels = 8
+    params.data_train = 'train_ll'
+    params.inp_channels = 64
     params.num_3d_filters = 16
     params.num_conv_filters = 10
     params.rgb_range = 1

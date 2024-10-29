@@ -181,12 +181,12 @@ def adjust_patch_size(patch, h_out, w_out):
 
 if __name__ == '__main__':
     # Example Usage
-    input_file_path = 'train_timelapse_256_patches/gualtar_1944/gualtar_1944.mat'
+    input_file_path = 'label_timelapse/nogueiro_1240.mat'
     h_input = 1024
     w_input = 1344
     h_out = 256
     w_out = 256
     crop_direction = 'left'  # or 'right', 'up', 'down'
-    output_folder = 'train_timelapse_256_patches/gualtar_1944'
+    output_folder = 'label_timelapse'
 
     split_matrix_to_patches(input_file_path, h_input, w_input, h_out, w_out, crop_direction, output_folder)

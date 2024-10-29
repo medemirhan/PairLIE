@@ -67,10 +67,10 @@ if __name__ == '__main__':
     params.gpu_mode = False
     params.threads = 0
     params.rgb_range = 1
-    params.data_test = 'test_ll_overlap_8_bands/2'
-    params.model = 'weights/train_20241013_144143/epoch_65.pth'
-    params.output_folder = 'results/test_ll_overlap_8_bands_0_8_gelu_newLoss_norm/2'
-    params.inp_channels = 8
+    params.data_test = 'test_timelapse_256_patches/1'
+    params.model = 'weights/train_20241020_170925/epoch_285.pth'
+    params.output_folder = 'results/test_timelapse_256_patches/1'
+    params.inp_channels = 33
     params.num_3d_filters = 16
     params.num_conv_filters = 10
 
