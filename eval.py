@@ -67,10 +67,10 @@ if __name__ == '__main__':
     params.gpu_mode = False
     params.threads = 0
     params.rgb_range = 1
-    params.data_test = 'test_timelapse_256_patches/1'
-    params.model = 'weights/train_20241020_170925/epoch_285.pth'
-    params.output_folder = 'results/test_timelapse_256_patches/1'
-    params.inp_channels = 33
+    params.data_test = 'test_ll_skip_bands_outdoor_6_bands'
+    params.model = 'weights/train_20241104_003417/epoch_180.pth'
+    params.output_folder = 'results/test_ll_skip_bands_outdoor_6_bands'
+    params.inp_channels = 6
     params.num_3d_filters = 16
     params.num_conv_filters = 10
 

@@ -105,8 +105,8 @@ if __name__ == '__main__':
     '''globalMin = 0.
     globalMax = 1.'''
 
-    im_dir = 'results/test_timelapse_256_patches/1/I/*.mat'
-    label_dir = 'label_timelapse'
+    im_dir = 'results/test_ll_skip_bands_indoor_and_outdoor_6_bands/combined/*.mat'
+    label_dir = 'label_ll'
 
     #avg_psnr, avg_ssim, avg_sam = metrics_hsi(os.path.normpath(im_dir), os.path.normpath(label_dir), data_min=globalMin, data_max=globalMax)
     avg_psnr, avg_ssim, avg_sam = metrics_hsi(os.path.normpath(im_dir), os.path.normpath(label_dir))

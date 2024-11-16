@@ -192,8 +192,8 @@ if __name__ == '__main__':
     params.gamma = 0.5
     params.seed = 42
     #params.data_train = 'PairLIE-training-dataset'
-    params.data_train = 'train_ll'
-    params.inp_channels = 64
+    params.data_train = 'train_ll_skip_bands_indoor_and_outdoor_6_bands'
+    params.inp_channels = 6
     params.num_3d_filters = 16
     params.num_conv_filters = 10
     params.rgb_range = 1
