@@ -37,7 +37,7 @@ def eval(params, model, testing_data_loader):
         with torch.no_grad():
             L, R, X = model(input)
             D = input - X
-            I = torch.pow(L,0.8) * R  # default=0.2, LOL=0.14.
+            I = torch.pow(L, params.luminance_factor) * R  # default=0.2, LOL=0.14.
             # flops, params = profile(model, (input,))
             # print('flops: ', flops, 'params: ', params)
 
@@ -71,6 +71,7 @@ if __name__ == '__main__':
     params.model = 'weights/train_20241104_003417/epoch_180.pth'
     params.output_folder = 'results/test_ll_skip_bands_outdoor_6_bands'
     params.inp_channels = 6
+    params.luminance_factor = 0.8
     params.num_3d_filters = 16
     params.num_conv_filters = 10
 
