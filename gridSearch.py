@@ -43,20 +43,29 @@ def run_eval(data_test, model, output_folder, inp_channels, luminance_factor):
 
 if __name__ == '__main__':
 
+    # don't change
     data_test = 'test_ll_skip_bands_outdoor'
-    model = 'weights/train_20241104_003417_23db/epoch_180.pth'
-    inp_channels = 3
-    output_folder_prefix = 'results/test_ll_skip_bands_outdoor_'
     filename_trim = ['_renamed_', '_1ms_renamed_', '_renamed', '_1ms_renamed', '_']
     label_dir = 'label_ll'
-    result_summary = "gridSearch.txt"
 
+    # change
+    exp_name = 'test_ll_skip_bands_outdoor'
+    model_name = 'train_20241104_003417_23db'
+    epoch_name = 'epoch_180.pth'
+    inp_channels = 3
     luminance_factors = np.arange(0.1, 2.1, 0.1)
+    
+    model_path = 'weights/' + model_name + '/' + epoch_name
+    model_tag = model_name.split('_', 1)[1]
+
+    exp_summary = exp_name + '_model_' + model_tag
+    output_dir = 'results/' + exp_summary
+    result_summary = output_dir + '/gridSearch_' + exp_summary + '.txt'
 
     for lf in luminance_factors:
         # eval.py
-        output_folder = output_folder_prefix + "{:.1f}".format(lf)
-        run_eval(data_test, model, output_folder, inp_channels, lf)
+        output_folder = output_dir + "/lf_{:.1f}".format(lf)
+        run_eval(data_test, model_path, output_folder, inp_channels, lf)
         
         # hsiManipulations.py
         results_folder = output_folder + '/I'
