@@ -15,7 +15,7 @@ from datetime import datetime
 import json
 from torch.utils.tensorboard import SummaryWriter
 
-REPORT_INTERVAL = 5
+REPORT_INTERVAL = 10
 
 def parse_args():
     # Training settings
@@ -44,7 +44,7 @@ def seed_torch(seed):
     torch.cuda.manual_seed_all(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
 
-def train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats, save_dir):
+def train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats, save_dir, cLossCoeff=0.5, rLossCoeff=1.0, pLossCoeff=5.0):
     train_loss1_meter = AvgMeter()
     train_loss2_meter = AvgMeter()
     train_loss3_meter = AvgMeter()
@@ -76,7 +76,7 @@ def train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats,
         loss1 = C_loss(R1, R2)
         loss2 = R_loss(L1, R1, im1, X1)
         loss3 = P_loss(im1, X1)
-        loss =  loss1 * 0.5 + loss2 * 1 + loss3 * 5
+        loss =  loss1 * cLossCoeff + loss2 * rLossCoeff + loss3 * pLossCoeff
 
         loss1_meter.update(loss1.item())
         loss2_meter.update(loss2.item())
@@ -138,9 +138,11 @@ def checkpoint(epoch, model_state_dict, dir):
     model_out_path = os.path.join(dir, "epoch_{}.pth".format(epoch))
     torch.save(model_state_dict, model_out_path)
     print("\nCheckpoint saved to {}".format(model_out_path))
+    return model_out_path
 
 def train(params, training_data_loader):
     print('===> Building model ')
+    model_full_path = ''
 
     model = net(params.inp_channels).cuda()
 
@@ -166,10 +168,10 @@ def train(params, training_data_loader):
     train_start = datetime.now()
     for epoch in range(params.start_iter, params.nEpochs + 1):
         print('\nEPOCH {:d} / {:d}'.format(epoch, params.nEpochs))
-        train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats, save_dir)
+        train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats, save_dir, params.cLossCoeff, params.rLossCoeff, params.pLossCoeff)
         scheduler.step()
         if epoch % params.snapshots == 0:
-            checkpoint(epoch, model.state_dict(), save_dir)
+            model_full_path = checkpoint(epoch, model.state_dict(), save_dir)
     
     train_elapsed = time_elapsed_since(train_start)[0]
 
@@ -177,6 +179,8 @@ def train(params, training_data_loader):
     writer.close()
 
     print('\nTraining done! Total elapsed time: {}\n'.format(train_elapsed))
+
+    return model_timestamp, save_dir, model_full_path
 
 if __name__ == '__main__':
     params = parse_args()
@@ -199,6 +203,10 @@ if __name__ == '__main__':
     params.rgb_range = 1
     params.save_folder = 'weights'
     params.output_folder = 'results'
+
+    params.cLossCoeff=0.5
+    params.rLossCoeff=1.0
+    params.pLossCoeff=5.0
 
     seed_torch(params.seed)
     cudnn.benchmark = True

@@ -46,7 +46,7 @@ if __name__ == '__main__':
     # don't change
     data_test = 'test_ll_skip_bands_outdoor'
     filename_trim = ['_renamed_', '_1ms_renamed_', '_renamed', '_1ms_renamed', '_']
-    label_dir = 'label_ll'
+    test_label_dir = 'label_ll'
 
     # change
     exp_name = 'test_ll_skip_bands_outdoor'
@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
         # measure.py
         measure_path = combined_folder + '/*.mat'
-        avg_psnr, avg_ssim, avg_sam = measure.metrics_hsi(os.path.normpath(measure_path), os.path.normpath(label_dir))
+        avg_psnr, avg_ssim, avg_sam = measure.metrics_hsi(os.path.normpath(measure_path), os.path.normpath(test_label_dir))
         
         str_lf = "{:.1f}".format(lf)
         str_psnr = "{:.4f} dB".format(avg_psnr)
