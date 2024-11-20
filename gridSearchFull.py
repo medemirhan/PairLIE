@@ -93,21 +93,21 @@ if __name__ == '__main__':
     test_label_dir = 'label_ll'
     
     # change
-    nEpochs = 80
+    nEpochs = 100
     lr = 1e-4
     data_train = 'train_ll_skip_bands_outdoor'
     inp_channels = 3
-    
-    cLossCoeff = [0, 0.2, 0.5, 1.0]
-    rLossCoeff = [1.0, 2.0]
-    pLossCoeff = [1.0, 5.0, 20.0]
-    luminance_factors = np.arange(0.1, 2.1, 0.1)
 
-    timestamp = f'{datetime.now():{""}%Y%m%d_%H%M%S}'
-    exp_purpose = 'test_ll_skip_bands_outdoor'
-    exp_name = exp_purpose + '_' + timestamp
+    cLossCoeff = [0.5]
+    rLossCoeff = [75.0]
+    pLossCoeff = [5.0]
+    luminance_factors = [0.9]
 
-    mlflow.set_experiment("/mlflow-train-eval-gridSearch")
+    timestamp = f'{datetime.now():{""}%H%M%S}'
+    exp_name = 'test_ll_skip_bands_outdoor'
+    exp_purpose = exp_name + '_' + timestamp
+
+    mlflow.set_experiment("/" + exp_purpose)
     for c in cLossCoeff:
         for r in rLossCoeff:
             for p in pLossCoeff:
