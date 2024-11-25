@@ -88,14 +88,14 @@ def run_eval(data_test, model, output_folder, inp_channels, luminance_factor):
 if __name__ == '__main__':
     
     # don't change
-    data_test = 'test_ll_skip_bands_outdoor'
     filename_trim = ['_renamed_', '_1ms_renamed_', '_renamed', '_1ms_renamed', '_']
-    test_label_dir = 'label_ll'
-    
+
     # change
     nEpochs = 100
     lr = 1e-4
     data_train = 'train_ll_skip_bands_outdoor'
+    data_test = 'test_ll_skip_bands_outdoor'
+    test_label_dir = 'label_ll'
     inp_channels = 3
 
     cLossCoeff = [0.5]

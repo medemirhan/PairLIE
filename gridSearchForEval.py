@@ -44,11 +44,11 @@ def run_eval(data_test, model, output_folder, inp_channels, luminance_factor):
 if __name__ == '__main__':
 
     # don't change
-    data_test = 'test_ll_skip_bands_outdoor'
     filename_trim = ['_renamed_', '_1ms_renamed_', '_renamed', '_1ms_renamed', '_']
-    test_label_dir = 'label_ll'
 
     # change
+    data_test = 'test_ll_skip_bands_outdoor'
+    test_label_dir = 'label_ll'
     exp_name = 'test_ll_skip_bands_outdoor'
     model_name = 'train_20241104_003417_23db'
     epoch_name = 'epoch_180.pth'
