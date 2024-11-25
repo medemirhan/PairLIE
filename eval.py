@@ -81,9 +81,11 @@ if __name__ == '__main__':
 
     print('===> Building model')
     if params.gpu_mode:
-        model = net(params.inp_channels).cuda()
+        #model = net(params.inp_channels).cuda()
+        model = net(inp_size=params.inp_channels, num_heads=4).cuda()
     else:
-        model = net(params.inp_channels)
+        #model = net(params.inp_channels)
+        model = net(inp_size=params.inp_channels, num_heads=4)
     model.load_state_dict(torch.load(params.model, map_location=lambda storage, loc: storage))
     print('Pre-trained model is loaded.')
 

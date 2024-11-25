@@ -144,7 +144,8 @@ def train(params, training_data_loader):
     print('===> Building model ')
     model_full_path = ''
 
-    model = net(params.inp_channels).cuda()
+    #model = net(params.inp_channels).cuda()
+    model = net(inp_size=params.inp_channels, num_heads=4).cuda()
 
     optimizer = optim.Adam(model.parameters(), lr=params.lr, betas=(0.9, 0.999), eps=1e-8)
 
