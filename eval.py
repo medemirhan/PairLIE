@@ -68,12 +68,12 @@ if __name__ == '__main__':
     params.threads = 0
     params.rgb_range = 1
     params.data_test = 'test_ll_skip_bands_outdoor_6_bands'
-    params.model = 'weights/train_20241104_003417/epoch_180.pth'
-    params.output_folder = 'results/test_ll_skip_bands_outdoor_6_bands'
+    params.model = 'weights/train_20241216_051138/epoch_100.pth'
+    params.output_folder = 'results/test_ll_skip_bands_outdoor_newNet'
     params.inp_channels = 6
-    params.luminance_factor = 0.8
+    params.num_conv_blocks = 4
+    params.luminance_factor = 0.4
     params.num_3d_filters = 16
-    params.num_conv_filters = 10
 
     print('===> Loading datasets')
     test_set = get_eval_set_hsi(params.data_test)
@@ -81,9 +81,9 @@ if __name__ == '__main__':
 
     print('===> Building model')
     if params.gpu_mode:
-        model = net(params.inp_channels).cuda()
+        model = net(params.inp_channels, params.num_conv_blocks).cuda()
     else:
-        model = net(params.inp_channels)
+        model = net(params.inp_channels, params.num_conv_blocks)
     model.load_state_dict(torch.load(params.model, map_location=lambda storage, loc: storage))
     print('Pre-trained model is loaded.')
 

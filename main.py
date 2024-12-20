@@ -73,10 +73,11 @@ def train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats,
 
         L1, R1, X1 = model(im1)
         L2, R2, X2 = model(im2)
-        loss1 = C_loss(R1, R2)
-        loss2 = R_loss(L1, R1, im1, X1)
-        loss3 = P_loss(im1, X1)
-        loss =  loss1 * cLossCoeff + loss2 * rLossCoeff + loss3 * pLossCoeff
+        loss1 = C_loss(R1, R2) * cLossCoeff
+        loss2 = R_loss(L1, R1, im1, X1) * rLossCoeff
+        loss3 = P_loss(im1, X1) * pLossCoeff
+        #loss =  loss1 * cLossCoeff + loss2 * rLossCoeff + loss3 * pLossCoeff
+        loss =  loss1 + loss2 + loss3
 
         loss1_meter.update(loss1.item())
         loss2_meter.update(loss2.item())
@@ -144,7 +145,7 @@ def train(params, training_data_loader):
     print('===> Building model ')
     model_full_path = ''
 
-    model = net(params.inp_channels).cuda()
+    model = net(params.inp_channels, params.num_conv_blocks).cuda()
 
     optimizer = optim.Adam(model.parameters(), lr=params.lr, betas=(0.9, 0.999), eps=1e-8)
 
@@ -196,17 +197,17 @@ if __name__ == '__main__':
     params.gamma = 0.5
     params.seed = 42
     #params.data_train = 'PairLIE-training-dataset'
-    params.data_train = 'train_ll_skip_bands_indoor_and_outdoor_6_bands'
+    params.data_train = 'train_ll_skip_bands_outdoor_6_bands'
     params.inp_channels = 6
     params.num_3d_filters = 16
-    params.num_conv_filters = 10
+    params.num_conv_blocks = 4
     params.rgb_range = 1
     params.save_folder = 'weights'
     params.output_folder = 'results'
 
-    params.cLossCoeff=0.5
-    params.rLossCoeff=1.0
-    params.pLossCoeff=5.0
+    params.cLossCoeff=1e8
+    params.rLossCoeff=75.0
+    params.pLossCoeff=0.0
 
     seed_torch(params.seed)
     cudnn.benchmark = True
