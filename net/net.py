@@ -2,77 +2,6 @@ import torch
 import torch.nn as nn
 from torch.nn import init
 
-class L_net(nn.Module):
-    def __init__(self, inp_size=32, num=64):
-        super(L_net, self).__init__()
-        self.L_net = nn.Sequential(
-            nn.ReflectionPad2d(1),
-            nn.Conv2d(inp_size, num, 3, 1, 0),
-            nn.ReLU(),               
-            nn.ReflectionPad2d(1),
-            nn.Conv2d(num, num, 3, 1, 0),
-            nn.ReLU(), 
-            nn.ReflectionPad2d(1),
-            nn.Conv2d(num, num, 3, 1, 0),
-            nn.ReLU(),               
-            nn.ReflectionPad2d(1),
-            nn.Conv2d(num, num, 3, 1, 0),
-            nn.ReLU(),   
-            nn.ReflectionPad2d(1),
-            nn.Conv2d(num, 1, 3, 1, 0),
-        )
-
-    def forward(self, input):
-        return torch.sigmoid(self.L_net(input))
-
-
-class R_net(nn.Module):
-    def __init__(self, inp_size=32, num=64):
-        super(R_net, self).__init__()
-
-        self.R_net = nn.Sequential(
-            nn.ReflectionPad2d(1),
-            nn.Conv2d(inp_size, num, 3, 1, 0),
-            nn.ReLU(), 
-            nn.ReflectionPad2d(1),
-            nn.Conv2d(num, num, 3, 1, 0),
-            nn.ReLU(),               
-            nn.ReflectionPad2d(1),
-            nn.Conv2d(num, num, 3, 1, 0),
-            nn.ReLU(),               
-            nn.ReflectionPad2d(1),
-            nn.Conv2d(num, num, 3, 1, 0),            
-            nn.ReLU(),   
-            nn.ReflectionPad2d(1),
-            nn.Conv2d(num, inp_size, 3, 1, 0),
-        )
-
-    def forward(self, input):
-        return torch.relu(self.R_net(input))
-
-class N_net(nn.Module):
-    def __init__(self, inp_size=32, num=64):
-        super(N_net, self).__init__()
-        self.N_net = nn.Sequential(
-            nn.ReflectionPad2d(1),
-            nn.Conv2d(inp_size, num, 3, 1, 0),
-            nn.ReLU(), 
-            nn.ReflectionPad2d(1),
-            nn.Conv2d(num, num, 3, 1, 0),
-            nn.ReLU(),               
-            nn.ReflectionPad2d(1),
-            nn.Conv2d(num, num, 3, 1, 0),
-            nn.ReLU(),               
-            nn.ReflectionPad2d(1),
-            nn.Conv2d(num, num, 3, 1, 0),            
-            nn.ReLU(),   
-            nn.ReflectionPad2d(1),
-            nn.Conv2d(num, inp_size, 3, 1, 0),
-        )
-
-    def forward(self, input):
-        return torch.relu(self.N_net(input))
-
 class SpectralConv(nn.Module):
     def __init__(self, in_channel=1, out_channels=64):
         super(SpectralConv, self).__init__()
@@ -178,22 +107,15 @@ class FuseNetwork(nn.Module):
 class net(nn.Module):
     def __init__(self, inp_size=64, num_conv_blocks=4):
         super(net, self).__init__()
+        # L_net is for estimating illumination. According to the Retinex theory, the color channels are
+        # assumed to have the same illumination. Therefore, the output channel of L-Net is set as 1
         self.L_net = FuseNetwork(inp_size, fused_out=1, num_conv_blocks=num_conv_blocks)
+        
+        # R_net is for estimating reflectance.
         self.R_net = FuseNetwork(inp_size, fused_out=inp_size, num_conv_blocks=num_conv_blocks)
+        
+        # aim is to remove inappropriate features of the original image
         self.N_net = FuseNetwork(inp_size, fused_out=inp_size, num_conv_blocks=num_conv_blocks)
-
-    def forward(self, input):
-        x = self.N_net(input)
-        L = self.L_net(x)
-        R = self.R_net(x)
-        return L, R, x
-
-class net3(nn.Module):
-    def __init__(self, inp_size=32):
-        super(net3, self).__init__()        
-        self.L_net = L_net(inp_size=inp_size, num=64)
-        self.R_net = R_net(inp_size=inp_size, num=64)
-        self.N_net = N_net(inp_size=inp_size, num=64)
 
     def forward(self, input):
         x = self.N_net(input)

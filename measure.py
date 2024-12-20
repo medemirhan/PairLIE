@@ -93,17 +93,12 @@ def metrics_hsi(im_dir, label_dir, data_min=None, data_max=None):
 
 if __name__ == '__main__':
 
-    #im_dir = 'PairLIE-our-results/LOL-test/I/*.png'
-    #label_dir = 'PairLIE-testing-dataset/LOL-test/reference'
     globalMin = 0.0708354
     globalMax = 1.7410845
     lowLightMin = 0.0708354
     lowLightMax = 0.2173913
     normalLightMin = 0.0708354
     normalLightMax = 1.7410845
-
-    '''globalMin = 0.
-    globalMax = 1.'''
 
     im_dir = 'results/test_ll_skip_bands_indoor_and_outdoor_6_bands/combined/*.mat'
     label_dir = 'label_ll'

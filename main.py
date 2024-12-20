@@ -17,25 +17,6 @@ from torch.utils.tensorboard import SummaryWriter
 
 REPORT_INTERVAL = 10
 
-def parse_args():
-    # Training settings
-    parser = argparse.ArgumentParser(description='PairLIE')
-    parser.add_argument('--batchSize', type=int, default=1, help='training batch size')
-    parser.add_argument('--nEpochs', type=int, default=400, help='number of epochs to train for')
-    parser.add_argument('--snapshots', type=int, default=20, help='Snapshots')
-    parser.add_argument('--start_iter', type=int, default=1, help='Starting Epoch')
-    parser.add_argument('--lr', type=float, default=1e-4, help='Learning Rate. Default=1e-4')
-    parser.add_argument('--gpu_mode', type=bool, default=True)
-    parser.add_argument('--threads', type=int, default=0, help='number of threads for data loader to use')
-    parser.add_argument('--decay', type=int, default='100', help='learning rate decay type')
-    parser.add_argument('--gamma', type=float, default=0.5, help='learning rate decay factor for step decay')
-    parser.add_argument('--seed', type=int, default=123456789, help='random seed to use. Default=123')
-    parser.add_argument('--data_train', type=str, default='../dataset/PairLIE-training-dataset/')
-    parser.add_argument('--rgb_range', type=int, default=1, help='maximum value of RGB')
-    parser.add_argument('--save_folder', default='weights/', help='Location to save checkpoint models')
-    parser.add_argument('--output_folder', default='results/', help='Location to save checkpoint models')
-    return parser.parse_args()
-
 def seed_torch(seed):
     random.seed(seed)
     np.random.seed(seed)
@@ -184,10 +165,11 @@ def train(params, training_data_loader):
     return model_timestamp, save_dir, model_full_path
 
 if __name__ == '__main__':
-    params = parse_args()
+    
+    params = Struct()
 
     params.batchSize = 1
-    params.nEpochs = 300
+    params.nEpochs = 10
     params.snapshots = 5
     params.start_iter = 1
     params.lr = 1e-4
@@ -197,17 +179,15 @@ if __name__ == '__main__':
     params.gamma = 0.5
     params.seed = 42
     #params.data_train = 'PairLIE-training-dataset'
-    params.data_train = 'train_ll_skip_bands_outdoor_6_bands'
-    params.inp_channels = 6
-    params.num_3d_filters = 16
+    params.data_train = 'data/train_ll_skip_bands_outdoor'
+    params.inp_channels = 3
     params.num_conv_blocks = 4
-    params.rgb_range = 1
     params.save_folder = 'weights'
     params.output_folder = 'results'
 
-    params.cLossCoeff=1e8
-    params.rLossCoeff=75.0
-    params.pLossCoeff=0.0
+    params.cLossCoeff = 1e6
+    params.rLossCoeff = 75.0
+    params.pLossCoeff = 0.0
 
     seed_torch(params.seed)
     cudnn.benchmark = True

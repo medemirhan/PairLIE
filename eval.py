@@ -8,6 +8,8 @@ from data import get_eval_set, get_eval_set_hsi
 from torchvision import transforms
 from torch.utils.data import DataLoader
 from utils import *
+import hsiOps
+import measure
 
 def parse_args():
     parser = argparse.ArgumentParser(description='PairLIE')
@@ -61,19 +63,22 @@ def eval(params, model, testing_data_loader):
 
 if __name__ == '__main__':
 
-    params = parse_args()
+    params = Struct()
 
     params.testBatchSize = 1
     params.gpu_mode = False
     params.threads = 0
-    params.rgb_range = 1
-    params.data_test = 'test_ll_skip_bands_outdoor_6_bands'
-    params.model = 'weights/train_20241216_051138/epoch_100.pth'
-    params.output_folder = 'results/test_ll_skip_bands_outdoor_newNet'
-    params.inp_channels = 6
+    params.data_test = 'data/test_ll_skip_bands_outdoor'
+    params.model = 'weights/train_20241220_230942/epoch_10.pth'
+    params.output_folder = 'results/test_ll_skip_bands_outdoor'
+    params.inp_channels = 3
     params.num_conv_blocks = 4
     params.luminance_factor = 0.4
-    params.num_3d_filters = 16
+
+    test_label_dir = 'data/label_ll'
+
+    # don't change
+    filename_trim = ['_renamed_', '_1ms_renamed_', '_renamed', '_1ms_renamed', '_']
 
     print('===> Loading datasets')
     test_set = get_eval_set_hsi(params.data_test)
@@ -88,3 +93,14 @@ if __name__ == '__main__':
     print('Pre-trained model is loaded.')
 
     eval(params, model, testing_data_loader)
+
+    results_folder = params.output_folder + '/I'
+    combined_folder = params.output_folder + '/combined'
+    hsiOps.concatenate_mat_files(results_folder, combined_folder, params.inp_channels, filename_trim)
+
+    measure_path = combined_folder + '/*.mat'
+    avg_psnr, avg_ssim, avg_sam = measure.metrics_hsi(os.path.normpath(measure_path), os.path.normpath(test_label_dir))
+
+    print("===> Avg.PSNR : {:.4f} dB ".format(avg_psnr))
+    print("===> Avg.SSIM : {:.4f} ".format(avg_ssim))
+    print("===> Avg.SAM  : {:.4f} ".format(avg_sam))

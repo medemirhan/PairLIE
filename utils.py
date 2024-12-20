@@ -151,3 +151,6 @@ def load_hsi_as_tensor(path, matContentHeader="data"):
     mat = torch.permute(mat, (2, 0, 1))
 
     return mat
+
+class Struct:
+    pass
