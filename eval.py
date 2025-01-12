@@ -99,7 +99,7 @@ if __name__ == '__main__':
     hsiOps.concatenate_mat_files(results_folder, combined_folder, params.inp_channels, filename_trim)
 
     measure_path = combined_folder + '/*.mat'
-    avg_psnr, avg_ssim, avg_sam = measure.metrics_hsi(os.path.normpath(measure_path), os.path.normpath(test_label_dir))
+    avg_psnr, avg_ssim, avg_sam = measure.metrics_hsi(os.path.normpath(measure_path), os.path.normpath(test_label_dir), matKeyPrediction='data', matKeyGt='ref')
 
     print("===> Avg.PSNR : {:.4f} dB ".format(avg_psnr))
     print("===> Avg.SSIM : {:.4f} ".format(avg_ssim))

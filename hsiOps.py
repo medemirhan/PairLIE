@@ -84,7 +84,7 @@ def mergeOverlappingHsis(input_dir, input_file_prefix, total_bands, output_band_
     output_file = os.path.join(input_dir, input_file_prefix + '.mat')
     savemat(output_file, {'data': data})
 
-def generate_banded_mat_files_for_all(directory, save_dir, num_bands, reserved_for_test):
+def generate_banded_mat_files_for_all(directory, save_dir, num_bands, reserved_for_test, key='data'):
     """
     Processes all `.mat` files in a specified directory,
     creating new .mat files by selecting a user-defined number of bands from each original file in pairs.
@@ -135,10 +135,10 @@ def generate_banded_mat_files_for_all(directory, save_dir, num_bands, reserved_f
         
         # Load the MAT file
         mat_data = loadmat(mat_path)
-        if 'data' not in mat_data:
-            print(f"The 'data' key is not found in {mat_file}. Skipping this file.")
+        if key not in mat_data:
+            print(f"The '{key}' key is not found in {mat_file}. Skipping this file.")
             continue
-        data = mat_data['data']
+        data = mat_data[key]
         
         # Check the dimensions of the data
         if len(data.shape) != 3:

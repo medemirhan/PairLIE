@@ -54,11 +54,11 @@ def train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats,
 
         L1, R1, X1 = model(im1)
         L2, R2, X2 = model(im2)
-        loss1 = C_loss(R1, R2) * cLossCoeff
-        loss2 = R_loss(L1, R1, im1, X1) * rLossCoeff
-        loss3 = P_loss(im1, X1) * pLossCoeff
-        #loss =  loss1 * cLossCoeff + loss2 * rLossCoeff + loss3 * pLossCoeff
-        loss =  loss1 + loss2 + loss3
+        loss1 = C_loss(R1, R2)
+        loss2 = R_loss(L1, R1, im1, X1)
+        loss3 = P_loss(im1, X1)
+        loss =  loss1 * cLossCoeff + loss2 * rLossCoeff + loss3 * pLossCoeff
+        #loss =  loss1 + loss2 + loss3
 
         loss1_meter.update(loss1.item())
         loss2_meter.update(loss2.item())
@@ -169,7 +169,7 @@ if __name__ == '__main__':
     params = Struct()
 
     params.batchSize = 1
-    params.nEpochs = 10
+    params.nEpochs = 100
     params.snapshots = 5
     params.start_iter = 1
     params.lr = 1e-4
