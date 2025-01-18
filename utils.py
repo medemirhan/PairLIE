@@ -86,13 +86,13 @@ def clear_line():
 
     print('\r{}'.format(' ' * 80), end='\r')
 
-def show_on_report(batch_idx, num_batches, lossTotal, loss1, loss2, loss3, elapsed):
+def show_on_report(batch_idx, num_batches, loss_total, loss_c, loss_r, loss_p, elapsed):
     # source: https://github.com/joeylitalien/noise2noise-pytorch
     """Formats training stats."""
 
     clear_line()
     dec = int(np.ceil(np.log10(num_batches)))
-    print('Batch {:>{dec}d} / {:d} | AvgLoss: {:>1.5f} | AvgLoss1: {:>1.5f} | AvgLoss2: {:>1.5f} | AvgLoss3: {:>1.5f} | AvgTime/btch: {:d}ms'.format(batch_idx, num_batches, lossTotal, loss1, loss2, loss3, int(elapsed), dec=dec))
+    print('Batch {:>{dec}d} / {:d} | TotalLoss: {:>1.5f} | C_Loss: {:>1.5f} | R_Loss: {:>1.5f} | P_Loss: {:>1.5f} | AvgTime/btch: {:d}ms'.format(batch_idx, num_batches, loss_total, loss_c, loss_r, loss_p, int(elapsed), dec=dec))
 
 def time_elapsed_since(start):
     # source: https://github.com/joeylitalien/noise2noise-pytorch
@@ -151,6 +151,54 @@ def load_hsi_as_tensor(path, matContentHeader="data"):
     mat = torch.permute(mat, (2, 0, 1))
 
     return mat
+
+def plot_loss_curve(stats, save_path='loss_curves.png'):
+    """Plot and save all training loss curves with epoch numbers"""
+    
+    epochs = range(1, len(stats['loss_total']) + 1)
+    
+    plt.figure(figsize=(15, 10))
+    
+    # Plot each loss in a separate subplot
+    plt.subplot(2, 2, 1)
+    plt.plot(epochs, stats['loss_total'], 'k-', label='Total Loss')
+    plt.title('Total Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.grid(True)
+    plt.legend()
+    
+    plt.subplot(2, 2, 2)
+    plt.plot(epochs, stats['loss_c'], 'r-', label='c_loss')
+    plt.title('Reflectance Consistency Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.grid(True)
+    plt.legend()
+    
+    plt.subplot(2, 2, 3)
+    plt.plot(epochs, stats['loss_r'], 'b-', label='r_loss')
+    plt.title('Retinex Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.grid(True)
+    plt.legend()
+    
+    plt.subplot(2, 2, 4)
+    plt.plot(epochs, stats['loss_p'], 'g-', label='p_loss')
+    plt.title('Projection Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.grid(True)
+    plt.legend()
+    
+    plt.tight_layout()
+    
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    
+    plt.savefig(save_path)
+    plt.close()
 
 class Struct:
     pass

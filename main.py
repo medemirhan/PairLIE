@@ -26,14 +26,14 @@ def seed_torch(seed):
     os.environ['PYTHONHASHSEED'] = str(seed)
 
 def train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats, save_dir, cLossCoeff=0.5, rLossCoeff=1.0, pLossCoeff=5.0):
-    train_loss1_meter = AvgMeter()
-    train_loss2_meter = AvgMeter()
-    train_loss3_meter = AvgMeter()
-    train_lossTotal_meter = AvgMeter()
-    loss1_meter = AvgMeter()
-    loss2_meter = AvgMeter()
-    loss3_meter = AvgMeter()
-    lossTotal_meter = AvgMeter()
+    train_loss_c_meter = AvgMeter()
+    train_loss_r_meter = AvgMeter()
+    train_loss_p_meter = AvgMeter()
+    train_loss_total_meter = AvgMeter()
+    loss_c_meter = AvgMeter()
+    loss_r_meter = AvgMeter()
+    loss_p_meter = AvgMeter()
+    loss_total_meter = AvgMeter()
     time_meter = AvgMeter()
 
     num_batches = len(training_data_loader)
@@ -43,7 +43,7 @@ def train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats,
     epoch_start = datetime.now()
     for iteration, batch in enumerate(training_data_loader, 1):
         batch_start = datetime.now()
-        progress_bar(iteration, num_batches, REPORT_INTERVAL, lossTotal_meter.val, loss1_meter.val, loss2_meter.val, loss3_meter.val)
+        progress_bar(iteration, num_batches, REPORT_INTERVAL, loss_total_meter.val, loss_c_meter.val, loss_r_meter.val, loss_p_meter.val)
 
         im1, im2, file1, file2 = batch[0], batch[1], batch[2], batch[3]
         im1 = im1.cuda()
@@ -54,27 +54,27 @@ def train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats,
 
         L1, R1, X1 = model(im1)
         L2, R2, X2 = model(im2)
-        loss1 = C_loss(R1, R2)
-        loss2 = R_loss(L1, R1, im1, X1)
-        loss3 = P_loss(im1, X1)
-        loss =  loss1 * cLossCoeff + loss2 * rLossCoeff + loss3 * pLossCoeff
-        #loss =  loss1 + loss2 + loss3
+        loss_c = C_loss(R1, R2) * cLossCoeff
+        loss_r = R_loss(L1, R1, im1, X1) * rLossCoeff
+        loss_p = P_loss(im1, X1) * pLossCoeff
+        #loss =  loss1 * cLossCoeff + loss2 * rLossCoeff + loss3 * pLossCoeff
+        loss_total =  loss_c + loss_r + loss_p
 
-        loss1_meter.update(loss1.item())
-        loss2_meter.update(loss2.item())
-        loss3_meter.update(loss3.item())
-        lossTotal_meter.update(loss.item())
+        loss_c_meter.update(loss_c.item())
+        loss_r_meter.update(loss_r.item())
+        loss_p_meter.update(loss_p.item())
+        loss_total_meter.update(loss_total.item())
 
-        writer.add_scalar("Loss/train", loss, epoch)
-        writer.add_scalar("C_loss/train", loss1, epoch)
-        writer.add_scalar("R_loss/train", loss2, epoch)
-        writer.add_scalar("P_loss/train", loss3, epoch)
+        writer.add_scalar("Loss/train", loss_total, epoch)
+        writer.add_scalar("C_loss/train", loss_c, epoch)
+        writer.add_scalar("R_loss/train", loss_r, epoch)
+        writer.add_scalar("P_loss/train", loss_p, epoch)
         writer.add_scalar("Lr/train", optimizer.param_groups[0]['lr'], epoch)
 
         optimizer.zero_grad()
-        loss.backward()
+        loss_total.backward()
         optimizer.step()
-        loss_print = loss_print + loss.item()
+        loss_print = loss_print + loss_total.item()
         if iteration % REPORT_INTERVAL == 0:
             '''print("===> Epoch[{}]({}/{}): Loss: {:.4f} || Learning rate: lr={}.".format(epoch,
                 iteration, num_batches, loss_print, optimizer.param_groups[0]['lr']))'''
@@ -83,37 +83,34 @@ def train_on_epoch(epoch, model, writer, training_data_loader, optimizer, stats,
         # Report/update statistics
         time_meter.update(time_elapsed_since(batch_start)[1])
         if iteration % REPORT_INTERVAL == 0 and iteration:
-            show_on_report(iteration, num_batches, lossTotal_meter.avg, loss1_meter.avg, loss2_meter.avg, loss3_meter.avg,time_meter.avg)
-            train_lossTotal_meter.update(lossTotal_meter.avg)
-            train_loss1_meter.update(loss1_meter.avg)
-            train_loss2_meter.update(loss2_meter.avg)
-            train_loss3_meter.update(loss3_meter.avg)
-            lossTotal_meter.reset()
-            loss1_meter.reset()
-            loss2_meter.reset()
-            loss3_meter.reset()
+            show_on_report(iteration, num_batches, loss_total_meter.avg, loss_c_meter.avg, loss_r_meter.avg, loss_p_meter.avg, time_meter.avg)
+            train_loss_total_meter.update(loss_total_meter.avg)
+            train_loss_c_meter.update(loss_c_meter.avg)
+            train_loss_r_meter.update(loss_r_meter.avg)
+            train_loss_p_meter.update(loss_p_meter.avg)
+            loss_total_meter.reset()
+            loss_c_meter.reset()
+            loss_r_meter.reset()
+            loss_p_meter.reset()
             time_meter.reset()
 
     # Epoch end, save and reset tracker
-    on_epoch_end(stats, train_loss1_meter.avg, train_loss2_meter.avg, train_loss3_meter.avg, train_lossTotal_meter.avg, save_dir)
-    train_lossTotal_meter.reset()
-    train_loss1_meter.reset()
-    train_loss2_meter.reset()
-    train_loss3_meter.reset()
+    on_epoch_end(stats, train_loss_c_meter.avg, train_loss_r_meter.avg, train_loss_p_meter.avg, train_loss_total_meter.avg, save_dir)
+    train_loss_total_meter.reset()
+    train_loss_c_meter.reset()
+    train_loss_r_meter.reset()
+    train_loss_p_meter.reset()
 
-def on_epoch_end(stats, loss1, loss2, loss3, total_loss, save_dir):
+def on_epoch_end(stats, loss_c, loss_r, loss_p, loss_total, save_dir):
     """Tracks and saves starts after each epoch."""
 
     # Save checkpoint
-    stats['loss1'].append(loss1)
-    stats['loss2'].append(loss2)
-    stats['loss3'].append(loss3)
-    stats['total_loss'].append(total_loss)
+    stats['loss_c'].append(loss_c)
+    stats['loss_r'].append(loss_r)
+    stats['loss_p'].append(loss_p)
+    stats['loss_total'].append(loss_total)
     
-    plot_per_epoch(save_dir, 'c_loss', stats['loss1'], 'C Loss')
-    plot_per_epoch(save_dir, 'r_loss', stats['loss2'], 'R Loss')
-    plot_per_epoch(save_dir, 'p_loss', stats['loss3'], 'P Loss')
-    plot_per_epoch(save_dir, 'training_loss', stats['total_loss'], 'Training Loss')
+    plot_loss_curve(stats, os.path.join(save_dir, 'loss_curves.png'))
 
 def checkpoint(epoch, model_state_dict, dir):
     os.makedirs(dir, exist_ok=True)
@@ -141,10 +138,10 @@ def train(params, training_data_loader):
     scheduler = lrs.MultiStepLR(optimizer, milestones, params.gamma)
 
     # Dictionaries of tracked stats
-    stats = {'total_loss': [],
-             'loss1': [],
-             'loss2': [],
-             'loss3': []}
+    stats = {'loss_total': [],
+             'loss_c': [],
+             'loss_r': [],
+             'loss_p': []}
 
     writer = SummaryWriter()
     train_start = datetime.now()
@@ -185,9 +182,9 @@ if __name__ == '__main__':
     params.save_folder = 'weights'
     params.output_folder = 'results'
 
-    params.cLossCoeff = 1e6
-    params.rLossCoeff = 75.0
-    params.pLossCoeff = 0.0
+    params.cLossCoeff = 1e9
+    params.rLossCoeff = 1
+    params.pLossCoeff = 1e2
 
     seed_torch(params.seed)
     cudnn.benchmark = True
